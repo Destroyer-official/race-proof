@@ -104,11 +104,20 @@ maturin build -m crates/race_proof_core/Cargo.toml
 pip install crates/race_proof_core/target/wheels/*.whl
 ```
 
-### Windows PowerShell Launcher
+### Quickstart Launchers
 
-```powershell
-.\Run_Race_Proof.ps1
-```
+- **Windows PowerShell**:
+  ```powershell
+  .\Run_Race_Proof.ps1          # Launches TUI dashboard
+  .\Run_Race_Oracle.ps1 bench   # Runs 31 benchmark scenarios
+  ```
+
+- **Linux / macOS**:
+  ```bash
+  chmod +x run_race_proof.sh run_race_oracle.sh
+  ./run_race_proof.sh           # Launches TUI dashboard
+  ./run_race_proof.sh bench     # Runs 31 benchmark scenarios
+  ```
 
 ---
 
@@ -202,7 +211,7 @@ The test suite covers all analysis dimensions, native Rust kernels, ingestion ad
 pytest -v
 ```
 
-**71 passed tests (100% pass rate)**.
+**76 passed tests (100% pass rate)**.
 
 ---
 
