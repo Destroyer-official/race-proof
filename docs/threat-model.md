@@ -72,3 +72,4 @@ When the AI agent synthesizes a customized verification script or parsing tool:
 To ensure findings cannot be spoofed, tampered with, or denied:
 - Every finding bundle is signed with an Ed25519 key into an **in-toto Statement v1.0** DSSE envelope.
 - Any alteration to the response text, status codes, or counterexample steps invalidates the signature digest immediately.
+

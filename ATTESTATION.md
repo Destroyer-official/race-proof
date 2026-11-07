@@ -107,3 +107,4 @@ Output:
   Timestamp: 2026-11-07T12:00:00Z
   Integrity: Payload hash matches subject digest
 ```
+

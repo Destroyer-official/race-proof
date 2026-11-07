@@ -103,3 +103,4 @@ To independently verify the formal concurrency proof via the TLC model checker:
    java -cp tla2tools.jar tlc2.TLC WebApiRaceModel.tla
    ```
 3. TLC will explore the reachable state space and reproduce the exact counterexample trace discovering invariant violation `NoOverdraft` or `SingleWinner`.
+

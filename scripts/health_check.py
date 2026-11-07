@@ -100,3 +100,4 @@ print("Recent 5 commits:")
 print(run("git log --oneline -5"))
 all_commits = run("git log --oneline").splitlines()
 print(f"Total commits: {len(all_commits)}")
+

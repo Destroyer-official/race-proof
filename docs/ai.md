@@ -81,3 +81,4 @@ RaceProof's `PromptGuard` (`race_proof/agent/guard.py`):
 1. **Cryptographic Nonce Fences**: Wraps telemetry bodies in randomized high-entropy delimiters that the model is trained to treat as literal data bytes.
 2. **Token Stripping**: Filters out LLM control markers (`<|im_start|>`, `<|endoftext|>`, `[INST]`).
 3. **Unicode Normalization**: Strips bidirectional text override markers (Bidi) that conceal malicious instructions from human reviewers.
+

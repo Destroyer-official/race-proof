@@ -87,3 +87,4 @@ race-proof bench -m scorecard.md -j scorecard.json
 # Filter by domain
 race-proof bench -d fintech -v
 ```
+

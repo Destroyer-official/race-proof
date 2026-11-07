@@ -32,3 +32,4 @@ race-proof bench -m scorecard.md -j scorecard.json
 ## Contributing Scenarios
 
 See [`CONTRIBUTING.md`](../CONTRIBUTING.md#adding-a-benchmark-scenario) and [`schema.json`](schema.json) for scenario formatting rules.
+

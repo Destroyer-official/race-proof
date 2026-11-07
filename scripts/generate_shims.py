@@ -44,3 +44,4 @@ for dirpath, _, filenames in os.walk(proof_root):
 print(f"Successfully created {len(created)} shim files in race_oracle.")
 for p in created:
     print(f"  + {p}")
+

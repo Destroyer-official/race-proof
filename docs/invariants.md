@@ -158,3 +158,4 @@ If you do not specify explicit invariant rules, RaceProof's **Invariant Miner** 
 1. **Identifies Numeric Decrements**: Finds numeric balance/counter fields and synthesizes `NoOverdraft` checks.
 2. **Detects Resource Identifiers**: Mines UUIDs and transaction IDs and asserts `UniqueToken` invariants.
 3. **Monitors Success Codes**: Asserts `SingleWinner` whenever the endpoint contains state-mutating verbs (`POST`, `PUT`, `PATCH`, `DELETE`).
+
