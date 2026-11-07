@@ -116,8 +116,8 @@ class RaceProofTUI(App[None]):
     def _compose_dashboard(self) -> ComposeResult:
         with VerticalScroll():
             yield Static(
-                "[bold cyan]RaceProof Concurrency Verification Dashboard[/bold cyan]\n"
-                "[dim]Offline-capable, deterministic concurrency analysis with native Rust hot-paths and TLA+ formal proofs.[/dim]",
+                "[bold cyan]RaceProof Concurrency Verification Terminal[/bold cyan]\n"
+                "[dim]Verification-first concurrency analysis with native Rust hot-paths and mathematical TLA+ formal proofs.[/dim]",
                 classes="card",
             )
 
@@ -145,22 +145,22 @@ class RaceProofTUI(App[None]):
                     yield Label("100% Precision • 1.000 F1 Ground Truth", classes="dim-label")
 
             # Quick Action Launchpad
-            yield Static("[bold cyan]🚀 Quick Action Launchpad (Click to Execute):[/bold cyan]", classes="card")
+            yield Static("[bold cyan]Quick Action Launchpad (Click or use keybindings):[/bold cyan]", classes="card")
             with Horizontal(classes="action-bar"):
-                yield Button("🔍 Verify Attack Log", id="btn-dash-verify", classes="-primary")
-                yield Button("🏆 Run Benchmark Corpus", id="btn-dash-bench", classes="-success")
-                yield Button("📐 Formal TLA+ Proof", id="btn-dash-prove", classes="-primary")
-                yield Button("🎯 Exploit PoC Hunt", id="btn-dash-hunt", classes="-warning")
-                yield Button("🤖 Autonomous AI Goal", id="btn-dash-agent", classes="-primary")
+                yield Button("🔍 1: Verify Attack Log", id="btn-dash-verify", classes="-primary")
+                yield Button("🏆 2: Run Benchmark Suite", id="btn-dash-bench", classes="-success")
+                yield Button("📐 3: Formal TLA+ Proof", id="btn-dash-prove", classes="-primary")
+                yield Button("🎯 4: Exploit PoC Hunt", id="btn-dash-hunt", classes="-warning")
+                yield Button("🤖 5: Autonomous AI Agent", id="btn-dash-agent", classes="-primary")
 
             # Environment & Telemetry Details
             with Vertical(classes="card"):
-                yield Label("System Telemetry & Architecture Specifications:", classes="info-label")
+                yield Label("[bold cyan]Architecture Specifications & Supported Tooling[/bold cyan]", classes="info-label")
                 yield Label(
-                    "• Ingestion Adapters: Turbo Intruder, QuickDraw, Nuclei Gate, Burp XML, HAR 1.2, Postman/Newman, Mitmproxy (.flow), k6, Raw HTTP\n"
+                    "• Ingestion Adapters (11): Turbo Intruder, QuickDraw, Nuclei Gate, Burp XML, HAR 1.2, Postman, mitmproxy (.flow), k6, OpenTelemetry, WebSockets, Raw HTTP\n"
+                    "• Verification Engines (7): Differential Myers/SIMD, Temporal Interval DAG, Interleaving TLA+, Wilson 95% CIs, JMESPath Invariants, SimHash LSH, Multi-Endpoint\n"
                     "• Evidence Formats: SARIF 2.1.0 Static Analysis, Signed Ed25519 Attestations, Interactive Standalone HTML Diffs\n"
-                    "• Statistical Engine: Wilson 95% Confidence Bounds, SciPy Binomial Overlap Hypothesis Tests, Happens-Before DAGs\n"
-                    "• Concurrency Protocols: HTTP/2 Single-Packet Burst & HTTP/3 QUIC-FIN-Sync Transport Barriers",
+                    "• Barrier Protocols: HTTP/2 Single-Packet Burst (TCP Nagle Smashing) & HTTP/3 QUIC-FIN-Sync Datagrams",
                     classes="dim-label",
                 )
 

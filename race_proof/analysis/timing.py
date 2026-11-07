@@ -13,6 +13,13 @@ from typing import Any
 from race_proof.models import AnalysisDimension, DimensionResult, RaceSession
 
 
+try:
+    import race_proof_core
+    RUST_CORE_AVAILABLE = True
+except ImportError:
+    RUST_CORE_AVAILABLE = False
+
+
 @dataclass
 class TimingCluster:
     centroid_ms: float
@@ -156,6 +163,25 @@ class TimingAnalyser:
     # ------------------------------------------------------------------
 
     def _compute_concurrency_overlap(self, session: RaceSession) -> tuple[float, int, list[str]]:
+        if not session.race_responses:
+            return 0.0, 1, []
+
+        if RUST_CORE_AVAILABLE and len(session.race_responses) >= 2:
+            try:
+                starts = [float(r.ttfb_ms if r.ttfb_ms is not None else 0.0) for r in session.race_responses]
+                ends = [float(r.elapsed_ms if r.elapsed_ms > (r.ttfb_ms or 0.0) else (r.ttfb_ms or 0.0) + 1.0) for r in session.race_responses]
+                peak_concurrent = race_proof_core.compute_peak_concurrency(starts, ends)
+                density = race_proof_core.compute_concurrency_density(starts, ends)
+                evidence = []
+                if peak_concurrent >= 2 and density > 0.1:
+                    evidence.append(
+                        f"Concurrent server execution (Rust accelerated): {peak_concurrent} requests overlapping in flight "
+                        f"(concurrency density={density:.1%})"
+                    )
+                return density, peak_concurrent, evidence
+            except Exception:
+                pass
+
         windows = []
         for r in session.race_responses:
             start = r.ttfb_ms if r.ttfb_ms is not None else 0.0

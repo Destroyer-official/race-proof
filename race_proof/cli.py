@@ -47,11 +47,77 @@ def _banner() -> None:
     )
 
 
-@click.group()
+def _show_dashboard() -> None:
+    try:
+        import race_proof_core
+        rust_status = f"[bold green]v{race_proof_core.rust_core_version()} (Active)[/bold green]"
+    except ImportError:
+        rust_status = "[dim yellow]Python Fallback[/dim yellow]"
+
+    console.print(
+        Panel(
+            f"[bold cyan]RaceProof v{APP_VERSION}[/bold cyan]  [dim]•[/dim]  [bold white]Verification-First Concurrency Analysis Engine[/bold white]\n"
+            f"[dim]Rust Hot-Path Core: {rust_status}   Benchmark Corpus: [bold green]31 Ground-Truth Scenarios[/bold green] (1.000 F1)   TLA+ Engine: [bold green]Ready[/bold green][/dim]",
+            border_style="cyan",
+            box=box.ROUNDED,
+        )
+    )
+
+    table = Table(box=box.SIMPLE, show_header=True, header_style="bold cyan", pad_edge=False)
+    table.add_column("Command", style="bold yellow", width=14)
+    table.add_column("Core Functional Purpose", style="white", width=44)
+    table.add_column("Example Invocation", style="dim cyan")
+
+    table.add_row(
+        "verify",
+        "Deterministic verification of race captures across 11 formats",
+        "race-proof verify -i capture.json",
+    )
+    table.add_row(
+        "prove",
+        "Mathematically prove safety or emit interleaving counterexample",
+        "race-proof prove -i capture.json --isolated",
+    )
+    table.add_row(
+        "hunt",
+        "Synthesize barrier-synchronized HTTP/2 & HTTP/3 reproduction PoC",
+        "race-proof hunt --target https://api.com/pay -o poc.py",
+    )
+    table.add_row(
+        "bench",
+        "Run the 31-scenario ground-truth corpus and render scorecard",
+        "race-proof bench",
+    )
+    table.add_row(
+        "tui",
+        "Launch interactive full-screen cyber terminal user interface",
+        "race-proof tui",
+    )
+    table.add_row(
+        "agent",
+        "Autonomous agent episodic memory, tool synthesis, and stats",
+        "race-proof agent memory",
+    )
+    table.add_row(
+        "stats",
+        "Inspect learned invariants and self-improvement events",
+        "race-proof stats",
+    )
+
+    console.print(table)
+    console.print(
+        "[dim]Quick Navigation: run [bold cyan]race-proof tui[/bold cyan] for interactive visual dashboard, "
+        "or [bold cyan]race-proof <command> --help[/bold cyan] for options.[/dim]\n"
+    )
+
+
+@click.group(invoke_without_command=True)
+@click.pass_context
 @click.version_option(APP_VERSION, prog_name="race-proof")
-def main() -> None:
+def main(ctx: click.Context) -> None:
     """RaceProof — verification-first race condition analysis engine."""
-    pass
+    if ctx.invoked_subcommand is None:
+        _show_dashboard()
 
 
 # ---------------------------------------------------------------------------

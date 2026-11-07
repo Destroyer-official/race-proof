@@ -75,6 +75,7 @@ def test_tui_dashboard_navigation_buttons():
             assert tabs.active == "tab-verify"
 
             app.action_switch_tab("tab-dashboard")
+            await pilot.pause()
             btn_bench = app.query_one("#btn-dash-bench", Button)
             btn_bench.press()
             await pilot.pause()

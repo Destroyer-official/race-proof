@@ -1,21 +1,23 @@
-"""Cyber Dark-Mode TUI Stylesheet for RaceProof."""
+"""Modern Professional Dark-Mode TUI Stylesheet for RaceProof."""
 
 TUI_CSS = """
 Screen {
-    background: #070b19;
-    color: #e2e8f0;
+    background: #090d16;
+    color: #f1f5f9;
 }
 
 Header {
     background: #0f172a;
-    color: #00f0ff;
+    color: #38bdf8;
     text-style: bold;
-    border-bottom: solid #00f0ff;
+    border-bottom: solid #0284c7;
+    height: 3;
 }
 
 Footer {
     background: #0f172a;
     color: #94a3b8;
+    height: 1;
 }
 
 TabbedContent {
@@ -24,37 +26,39 @@ TabbedContent {
 
 TabPane {
     padding: 1 2;
-    background: #070b19;
+    background: #090d16;
 }
 
 Tabs {
     background: #0f172a;
     border-bottom: solid #1e293b;
+    height: 3;
 }
 
 Tab {
     color: #94a3b8;
     text-style: bold;
+    padding: 0 2;
 }
 
 Tab.-active {
-    color: #00f0ff;
+    color: #38bdf8;
     background: #1e293b;
-    border-bottom: tall #00f0ff;
+    border-bottom: tall #38bdf8;
 }
 
-/* Common Containers */
+/* Card Containers */
 .card {
     background: #0f172a;
     border: solid #1e293b;
-    border-title-color: #00f0ff;
+    border-title-color: #38bdf8;
     border-title-style: bold;
-    padding: 1;
+    padding: 1 2;
     margin-bottom: 1;
 }
 
 .card:hover {
-    border: solid #00f0ff;
+    border: solid #38bdf8;
 }
 
 .row {
@@ -71,21 +75,25 @@ Tab.-active {
 
 /* Metric Tiles */
 .metric-tile {
-    background: #0f172a;
-    border: solid #334155;
+    background: #131b2e;
+    border: solid #1e293b;
     padding: 1;
     width: 1fr;
     margin-right: 1;
     text-align: center;
 }
 
+.metric-tile:hover {
+    border: solid #38bdf8;
+}
+
 .metric-title {
-    color: #94a3b8;
+    color: #64748b;
     text-style: bold;
 }
 
 .metric-value {
-    color: #00f0ff;
+    color: #38bdf8;
     text-style: bold;
 }
 
@@ -104,13 +112,53 @@ Tab.-active {
     text-style: bold;
 }
 
+/* KPI Row in Benchmark */
+.kpi-row {
+    height: auto;
+    layout: horizontal;
+    margin-bottom: 1;
+}
+
+.kpi-box {
+    background: #131b2e;
+    border: solid #1e293b;
+    padding: 1;
+    width: 1fr;
+    margin-right: 1;
+    text-align: center;
+}
+
+.kpi-box-title {
+    color: #64748b;
+    text-style: bold;
+}
+
+.kpi-box-val {
+    color: #10b981;
+    text-style: bold;
+}
+
 /* Buttons */
+.action-bar {
+    height: auto;
+    layout: horizontal;
+    margin-bottom: 1;
+    align-vertical: middle;
+}
+
 Button {
-    min-width: 16;
+    min-width: 18;
     height: 3;
     margin-right: 1;
     text-style: bold;
     border: none;
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+Button:hover {
+    background: #334155;
+    color: #ffffff;
 }
 
 Button.-primary {
@@ -119,7 +167,7 @@ Button.-primary {
 }
 
 Button.-primary:hover {
-    background: #00f0ff;
+    background: #38bdf8;
     color: #000000;
 }
 
@@ -144,45 +192,61 @@ Button.-warning:hover {
 }
 
 Button.-error {
-    background: #e11d48;
+    background: #dc2626;
     color: #ffffff;
 }
 
 Button.-error:hover {
     background: #f43f5e;
-    color: #000000;
+    color: #ffffff;
 }
 
 /* Inputs & Selects */
 Input {
-    background: #1e293b;
-    border: solid #334155;
+    background: #131b2e;
+    border: solid #1e293b;
     color: #ffffff;
     margin-bottom: 1;
+    padding: 0 1;
 }
 
 Input:focus {
-    border: solid #00f0ff;
+    border: solid #38bdf8;
 }
 
 Select {
-    background: #1e293b;
-    border: solid #334155;
+    background: #131b2e;
+    border: solid #1e293b;
     color: #ffffff;
     margin-bottom: 1;
+}
+
+Select:focus {
+    border: solid #38bdf8;
+}
+
+/* Labels */
+.info-label {
+    color: #94a3b8;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.dim-label {
+    color: #64748b;
 }
 
 /* Data Tables */
 DataTable {
-    background: #0f172a;
+    background: #0b0f19;
     border: solid #1e293b;
     height: 1fr;
     color: #f8fafc;
 }
 
 DataTable > .datatable--header {
-    background: #1e293b;
-    color: #00f0ff;
+    background: #131b2e;
+    color: #38bdf8;
     text-style: bold;
 }
 
@@ -194,39 +258,23 @@ DataTable > .datatable--cursor {
 
 /* Rich Log stream */
 RichLog {
-    background: #050811;
+    background: #060911;
     border: solid #1e293b;
     padding: 1;
     height: 1fr;
-    color: #38bdf8;
+    color: #e2e8f0;
 }
 
-/* Result Banners */
-.banner-confirmed {
-    background: #4c0519;
-    border: tall #f43f5e;
-    color: #fda4af;
-    padding: 1;
-    text-style: bold;
-    margin-bottom: 1;
+.code-viewer {
+    height: 1fr;
+    min-height: 12;
 }
 
-.banner-safe {
-    background: #064e3b;
-    border: tall #10b981;
-    color: #a7f3d0;
+.detail-pane {
+    background: #131b2e;
+    border: solid #1e293b;
     padding: 1;
-    text-style: bold;
-    margin-bottom: 1;
-}
-
-.banner-uncertain {
-    background: #451a03;
-    border: tall #f59e0b;
-    color: #fde68a;
-    padding: 1;
-    text-style: bold;
-    margin-bottom: 1;
+    margin-top: 1;
+    color: #e2e8f0;
 }
 """
-
