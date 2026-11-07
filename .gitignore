@@ -36,6 +36,9 @@ htmlcov/
 model/*.gguf
 model/*.log
 
+# Workflow directory (workflow scope not in local OAuth token)
+.github/
+
 # Generated audit findings and temporary reports
 race_oracle_findings/
 *.sarif
