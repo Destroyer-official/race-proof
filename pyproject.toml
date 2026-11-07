@@ -65,10 +65,11 @@ dev = [
 
 [project.scripts]
 race-proof = "race_proof.cli:main"
+race-oracle = "race_oracle.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["race_proof*", "race_proof_bench*"]
+include = ["race_proof*", "race_proof_bench*", "race_oracle*"]
 exclude = ["crates*", "model*", "tests*", "examples*"]
 
 [tool.pytest.ini_options]

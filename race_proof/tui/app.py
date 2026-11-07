@@ -55,8 +55,8 @@ except ImportError:
 class RaceProofTUI(App[None]):
     """Clickable, high-performance interactive Terminal UI for RaceProof."""
 
-    TITLE = "RaceProof — Concurrency Verification Terminal"
-    SUB_TITLE = "Deterministic Verification • TLA+ Formal Proof • Autonomous AI Cognition"
+    TITLE = "RaceProof v0.2.0"
+    SUB_TITLE = "Concurrency Verification Terminal"
     CSS = TUI_CSS
 
     BINDINGS = [
@@ -87,19 +87,19 @@ class RaceProofTUI(App[None]):
             with TabPane("📊 Dashboard", id="tab-dashboard"):
                 yield from self._compose_dashboard()
 
-            with TabPane("🔍 Verify Attack", id="tab-verify"):
+            with TabPane("🔍 Verify", id="tab-verify"):
                 yield from self._compose_verify()
 
-            with TabPane("🏆 Benchmark Suite", id="tab-bench"):
+            with TabPane("🏆 Benchmark", id="tab-bench"):
                 yield from self._compose_bench()
 
-            with TabPane("📐 Formal Proof (TLA+)", id="tab-prove"):
+            with TabPane("📐 Formal Proof", id="tab-prove"):
                 yield from self._compose_prove()
 
-            with TabPane("🎯 PoC Synthesizer (Hunt)", id="tab-hunt"):
+            with TabPane("🎯 PoC Hunt", id="tab-hunt"):
                 yield from self._compose_hunt()
 
-            with TabPane("🤖 Autonomous AI Agent", id="tab-agent"):
+            with TabPane("🤖 AI Agent", id="tab-agent"):
                 yield from self._compose_agent()
 
             with TabPane("📜 Event Logs", id="tab-logs"):
@@ -909,6 +909,14 @@ class RaceProofTUI(App[None]):
                 banner.update(
                     f"[bold green]PROVEN SAFE: All Concurrency Invariants Hold![/bold green]\n"
                     f"[dim]States Explored: {res.states_explored} | Invariants Verified: {', '.join(res.invariants_verified)}[/dim]"
+                )
+                trace_table.add_row(
+                    "—",
+                    "ALL",
+                    "Atomic Execution (Serialized)",
+                    str(balance),
+                    str(max(0, balance - cost)),
+                    "1",
                 )
             else:
                 banner.update(

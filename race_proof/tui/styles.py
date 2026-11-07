@@ -304,6 +304,32 @@ RichLog {
     min-height: 10;
 }
 
+#prove-trace-table {
+    height: 9;
+    min-height: 7;
+    margin-bottom: 1;
+}
+
+#prove-tla-log {
+    height: 16;
+    min-height: 10;
+}
+
+#hunt-code-viewer {
+    height: 18;
+    min-height: 10;
+}
+
+#agent-stream-log {
+    height: 18;
+    min-height: 10;
+}
+
+#verify-details {
+    height: 16;
+    min-height: 10;
+}
+
 .detail-pane {
     background: #131b2e;
     border: solid #1e293b;
