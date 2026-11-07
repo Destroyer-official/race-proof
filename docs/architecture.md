@@ -1,9 +1,14 @@
 # RaceProof System Architecture
 
-## 1. High-Level System Overview
+> **Version**: 1.0  
+> **Status**: Production Standard  
+> **Target**: Comprehensive engineering design of the 7-stage deterministic verification pipeline.
 
-RaceProof is designed as a **verification-first differential concurrency analysis and formal proof engine**.
-It operates strictly downstream of attack execution tools, ingesting concurrent response captures, eliminating non-deterministic network noise, and verifying business logic invariants.
+---
+
+## 1. High-Level Architecture
+
+RaceProof is a verification-first differential concurrency analysis and formal proof engine. It operates downstream of security testing tools, transforming raw concurrent HTTP response bursts into mathematically verified, signed findings.
 
 ```mermaid
 flowchart TD
@@ -14,7 +19,8 @@ flowchart TD
         A4["mitmproxy (.flow / json)"]
         A5["Postman / Newman"]
         A6["k6 NDJSON"]
-        A7["Raw Transcripts"]
+        A7["OpenTelemetry Traces"]
+        A8["WebSocket Frames"]
     end
 
     subgraph Adapters["2. Adapter & Normalization"]
@@ -60,25 +66,26 @@ flowchart TD
 
 Every tool export is normalized into a uniform Pydantic model:
 - `RaceRequest`: URL, method, headers, payload, timestamp.
-- `RaceResponse`: status code, headers, body, elapsed latency, time-to-first-byte (TTFB), request metadata.
-- `RaceSession`: baseline single-request response, list of concurrent race responses, session identifier, source tool metadata.
+- `RaceResponse`: Status code, headers, body, elapsed latency, time-to-first-byte (TTFB), request metadata.
+- `RaceSession`: Baseline single-request response, list of concurrent race responses, session identifier, source tool metadata.
 
 ---
 
-## 3. Deterministic Core Pipeline
+## 3. The 7 Deterministic Analysis Dimensions
 
-The deterministic engine executes 7 orthogonal analysis dimensions:
+The core analysis engine executes seven orthogonal dimensions:
+
 1. **Status Code Invariance**: Verifies distribution of 2xx, 4xx, and 5xx responses.
-2. **Semantic Body Diffing**: Token-level diffing after auto-masking ephemeral fields (CSRF tokens, UUIDs, timestamps, JWTs).
-3. **Temporal Flight Analysis**: Computes exact server-side critical windows ($\Delta = \text{elapsed} - \text{TTFB}$).
-4. **MinHash & LSH Clustering**: Near-duplicate clustering across thousands of concurrent bodies.
+2. **Semantic Body Diffing**: Token-level Myers/Patience diffing after auto-masking ephemeral fields (CSRF tokens, UUIDs, timestamps, JWTs).
+3. **Temporal Flight Analysis**: Computes exact server-side processing windows ($\Delta = \text{elapsed} - \text{TTFB}$).
+4. **MinHash & Banded LSH Clustering**: Near-duplicate clustering across thousands of concurrent bodies ($B=32, R=4$).
 5. **Business Invariant Evaluation**: JMESPath expressions and operators (`single_200_winner`, `any_negative`, `state_stall`, `unique`).
 6. **Academic Concurrency Modeling**: ReqRacer happens-before relations ($\prec_{web}$) and PortSwigger state-machine cross-route collisions.
 7. **Defect Classification**: Categorization into ANSI SQL / IEEE S&P anomalies (`LOST_UPDATE`, `TOCTOU_DIRTY_READ`, `WRITE_SKEW`, `LIMIT_OVERRUN`).
 
 ---
 
-## 4. Formal Verification Bridge
+## 4. Formal Concurrency Verification Engine
 
 RaceProof translates observed API sessions into formal TLA+ mathematical models:
 - **`WebApiRaceModel.tla`**: Models concurrent threads, balance transitions, and invariant predicates (`NoOverdraft`, `SingleWinner`).
@@ -86,12 +93,11 @@ RaceProof translates observed API sessions into formal TLA+ mathematical models:
 
 ---
 
-## 5. Multi-Agent Consensus Swarm
+## 5. Multi-Agent Anti-Hallucination Swarm
 
-To prevent AI hallucination:
+To guarantee zero hallucinations:
 - Three specialized agents run in parallel:
   1. **Adversary Agent**: Attempts to debunk the finding as ephemeral noise, dynamic nonces, or rate-limiting.
   2. **Formal Prover Agent**: Evaluates state-space invariants.
   3. **Architect Agent**: Determines root-cause isolation level (`SERIALIZABLE`, `SELECT ... FOR UPDATE`).
 - Verdicts are only confirmed when the Prover confirms invariant breach and the Adversary fails to debunk the finding.
-

@@ -28,8 +28,10 @@ RUN pip install --no-cache-dir /app/wheels/*.whl && \
     rm -rf /app/wheels
 
 COPY race_proof/ /app/race_proof/
+COPY race_oracle/ /app/race_oracle/
 COPY race_proof_bench/ /app/race_proof_bench/
 COPY examples/ /app/examples/
+
 
 RUN pip install --no-cache-dir -e .
 

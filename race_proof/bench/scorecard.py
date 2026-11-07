@@ -167,3 +167,6 @@ class BenchmarkScorecard:
 
         return "\n".join(lines)
 
+    format_markdown = render_markdown
+
+

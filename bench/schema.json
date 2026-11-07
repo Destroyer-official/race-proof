@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RaceProofBenchScenario",
+  "description": "Schema for ground-truth benchmark scenarios in race-proof-bench",
+  "type": "object",
+  "required": [
+    "scenario_id",
+    "domain",
+    "defect_class",
+    "ground_truth_verdict",
+    "description",
+    "baseline",
+    "race_responses"
+  ],
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "pattern": "^BENCH-[A-Z]{3,4}-[0-9]{3}$"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["fintech", "ecommerce", "auth_identity", "graphql_mutations", "grpc_microservices", "distributed_queues"]
+    },
+    "defect_class": {
+      "type": "string",
+      "enum": [
+        "LOST_UPDATE",
+        "LIMIT_OVERRUN",
+        "TOCTOU",
+        "WRITE_SKEW",
+        "DIRTY_READ",
+        "STATE_STALL",
+        "SESSION_SKEW",
+        "BENIGN_SERIALIZED"
+      ]
+    },
+    "cwe": {
+      "type": "string",
+      "pattern": "^CWE-[0-9]+$"
+    },
+    "ground_truth_verdict": {
+      "type": "string",
+      "enum": ["CONFIRMED", "BENIGN", "NOISE"]
+    },
+    "description": {
+      "type": "string"
+    },
+    "backend_environment": {
+      "type": "object",
+      "properties": {
+        "db_engine": { "type": "string" },
+        "isolation_level": { "type": "string" },
+        "orm": { "type": "string" },
+        "failure_root_cause": { "type": "string" }
+      }
+    },
+    "expected_invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "operator"],
+        "properties": {
+          "id": { "type": "string" },
+          "jmespath": { "type": "string" },
+          "operator": { "type": "string" },
+          "threshold": { "type": "number" },
+          "expected_value": {}
+        }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "required": ["status_code"],
+      "properties": {
+        "status_code": { "type": "integer" },
+        "headers": { "type": "object" },
+        "body": { "type": "string" },
+        "elapsed_ms": { "type": "number" },
+        "ttfb_ms": { "type": "number" }
+      }
+    },
+    "race_responses": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["status_code"],
+        "properties": {
+          "status_code": { "type": "integer" },
+          "headers": { "type": "object" },
+          "body": { "type": "string" },
+          "elapsed_ms": { "type": "number" },
+          "ttfb_ms": { "type": "number" },
+          "sequence_index": { "type": "integer" }
+        }
+      }
+    }
+  }
+}
+
