@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-ECO-002",
+  "domain": "ecommerce",
+  "defect_class": "TOCTOU",
+  "cwe": "CWE-367",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Flash sale inventory oversell: 1 item in stock sold to 3 concurrent purchasers",
+  "backend_environment": {
+    "db_engine": "mongodb-7.0",
+    "isolation_level": "LOCAL",
+    "orm": "mongoose",
+    "failure_root_cause": "FindOne then update query sequence without findOneAndUpdate atomic operators"
+  },
+  "expected_invariants": [
+    {
+      "id": "stock_non_negative",
+      "jmespath": "stock_remaining",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 409,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"Out of stock\", \"stock_remaining\": 0}",
+    "elapsed_ms": 38.0,
+    "ttfb_ms": 20.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"purchase\": \"confirmed\", \"order_ref\": \"ord_a1\", \"stock_remaining\": 0}",
+      "elapsed_ms": 25.1,
+      "ttfb_ms": 12.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"purchase\": \"confirmed\", \"order_ref\": \"ord_b2\", \"stock_remaining\": -1}",
+      "elapsed_ms": 25.3,
+      "ttfb_ms": 12.2
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"purchase\": \"confirmed\", \"order_ref\": \"ord_c3\", \"stock_remaining\": -2}",
+      "elapsed_ms": 25.5,
+      "ttfb_ms": 12.4
+    }
+  ]
+}
+

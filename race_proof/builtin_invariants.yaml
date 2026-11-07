@@ -1,0 +1,94 @@
+# RaceProof — Production Built-in Invariant Rules
+invariants:
+  # -------------------------------------------------------------------------
+  # Core HTTP & Transaction Invariants
+  # -------------------------------------------------------------------------
+  - id: single_200_winner
+    description: "Only at most one concurrent request in a critical transaction should return HTTP 200"
+    jmespath: null
+    expected_value: 200
+    operator: count_gt
+    threshold: 1
+    severity: HIGH
+    applies_to: race_responses
+
+  # -------------------------------------------------------------------------
+  # Financial & Ledger Invariants
+  # -------------------------------------------------------------------------
+  - id: non_negative_balance
+    description: "Account balances must never become negative after concurrent transactions"
+    jmespath: "balance"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  - id: non_negative_wallet
+    description: "Wallet funds or credits must remain non-negative"
+    jmespath: "wallet_balance"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  - id: non_negative_credits
+    description: "API or platform credits must remain non-negative"
+    jmespath: "credits"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  # -------------------------------------------------------------------------
+  # E-Commerce & Inventory Invariants
+  # -------------------------------------------------------------------------
+  - id: non_negative_stock
+    description: "Inventory stock count must not become negative after concurrent orders"
+    jmespath: "stock"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  - id: non_negative_quantity
+    description: "Item available quantity must not become negative"
+    jmespath: "available_quantity"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  - id: coupon_single_redemption
+    description: "Coupon remaining redemptions cannot decrease past 0"
+    jmespath: "remaining_redemptions"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  # -------------------------------------------------------------------------
+  # Identity, Rate Limiting & Resource Creation
+  # -------------------------------------------------------------------------
+  - id: duplicate_resource_creation
+    description: "Concurrent creation requests should not create more than one resource"
+    jmespath: "created"
+    operator: count_gt
+    threshold: 1
+    severity: MEDIUM
+    applies_to: race_responses
+
+  - id: unique_transaction_ids
+    description: "Concurrent transactions must generate strictly unique transaction IDs"
+    jmespath: "transaction_id"
+    operator: unique
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  - id: single_vote_submission
+    description: "Voting or rating actions may only register once per user token"
+    jmespath: "voted"
+    operator: count_gt
+    threshold: 1
+    severity: MEDIUM
+    applies_to: race_responses

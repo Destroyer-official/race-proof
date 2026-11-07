@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-RPC-001",
+  "domain": "grpc_microservices",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "gRPC AccountService.Debit unary RPC multiplexed over HTTP/2 streams 3 and 5 without distributed lock",
+  "backend_environment": {
+    "db_engine": "cockroachdb-23.2",
+    "isolation_level": "SNAPSHOT",
+    "orm": "gorm",
+    "failure_root_cause": "gRPC microservice node reads account proto from redis cache and writes back stale balance without distributed redlock"
+  },
+  "expected_invariants": [
+    {
+      "id": "grpc_debit_positive",
+      "jmespath": "new_balance",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/grpc", "grpc-status": "10" },
+    "body": "{\"grpc_status\": 10, \"message\": \"ABORTED: Insufficient balance\"}",
+    "elapsed_ms": 30.0,
+    "ttfb_ms": 15.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/grpc", "grpc-status": "0" },
+      "body": "{\"grpc_status\": 0, \"tx_id\": \"tx_01\", \"debited\": 50, \"new_balance\": 0}",
+      "elapsed_ms": 21.0,
+      "ttfb_ms": 10.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/grpc", "grpc-status": "0" },
+      "body": "{\"grpc_status\": 0, \"tx_id\": \"tx_02\", \"debited\": 50, \"new_balance\": 0}",
+      "elapsed_ms": 21.3,
+      "ttfb_ms": 10.2
+    }
+  ]
+}
+

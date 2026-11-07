@@ -1,0 +1,16 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.hypothesis
+target/
+crates/*/target/
+model/
+.git
+.github
+*.egg-info/
+dist/
+build/
+race_proof_findings/
+

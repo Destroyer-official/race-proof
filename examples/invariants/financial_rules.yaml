@@ -1,0 +1,17 @@
+invariants:
+  - id: single_coupon_redemption
+    description: "Remaining coupon redemptions must never drop below 0"
+    jmespath: "remaining_redemptions"
+    operator: any_negative
+    threshold: 0
+    severity: HIGH
+    applies_to: race_responses
+
+  - id: balance_monotonic_reduction
+    description: "Account balance must remain above 70 after single purchase"
+    jmespath: "balance"
+    operator: lt
+    threshold: 70
+    severity: HIGH
+    applies_to: race_responses
+

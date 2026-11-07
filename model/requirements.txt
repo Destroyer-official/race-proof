@@ -1,0 +1,7 @@
+# UI and model chat-template runtime only.
+# Install llama-cpp-python separately with its Vulkan backend enabled.
+rich>=13.7
+Jinja2>=3.1
+
+# Optional: psutil improves physical-core detection on some systems.
+# Windows RAM detection uses GlobalMemoryStatusEx and does not require psutil.

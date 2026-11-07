@@ -1,0 +1,41 @@
+{
+  "scenario_id": "bench_csh_002",
+  "domain": "cache_stampede",
+  "title": "Redis Redlock Distributed Mutex Protection (Benign)",
+  "description": "Cache miss triggers distributed lock acquisition; only first thread recalculates while second thread waits and reads warmed cache.",
+  "ground_truth_verdict": "BENIGN",
+  "vulnerability_class": "BENIGN_MUTEX",
+  "attack_window_ms": 0.0,
+  "expected_invariant_violation": "None",
+  "baseline": {
+    "status_code": 404,
+    "elapsed_ms": 20.0,
+    "ttfb_ms": 8.0,
+    "body": "{\"error\": \"reward_already_claimed\", \"granted\": false}"
+  },
+  "race_responses": [
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "elapsed_ms": 42.0,
+      "ttfb_ms": 18.0,
+      "body": "{\"reward_id\": \"CLAIMED_001\", \"points\": 500, \"granted\": true}"
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 404,
+      "elapsed_ms": 45.0,
+      "ttfb_ms": 19.0,
+      "body": "{\"error\": \"reward_already_claimed\", \"granted\": false}"
+    }
+  ],
+  "invariants": [
+    {
+      "target_field": "body.reward_id",
+      "operator": "single_200_winner",
+      "threshold": 1,
+      "severity": "CRITICAL"
+    }
+  ]
+}
+

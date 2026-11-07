@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.dll
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+# Rust build artifacts
+target/
+crates/**/target/
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Testing & Coverage
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+.tox/
+
+# Local model weights and logs
+*.gguf
+*.log
+model/*.gguf
+model/*.log
+
+# Generated audit findings and temporary reports
+race_oracle_findings/
+*.sarif
+reproduce_race*.py
+WebApiRaceModel.tla
+WebApiRaceModel.cfg
+BENCHMARK_SCORECARD.md
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+

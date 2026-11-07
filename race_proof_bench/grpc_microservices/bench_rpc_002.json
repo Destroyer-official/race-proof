@@ -1,0 +1,49 @@
+{
+  "scenario_id": "BENCH-RPC-002",
+  "domain": "grpc_microservices",
+  "defect_class": "BENIGN_SERIALIZED",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "gRPC LeaseService.AcquireLease guarded by etcd raft consensus: exactly 1 node acquires lease",
+  "backend_environment": {
+    "db_engine": "etcd-v3.5",
+    "isolation_level": "LINEARIZABLE",
+    "orm": "clientv3",
+    "failure_root_cause": "N/A - etcd Raft consensus guarantees linearizable lease grant"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_lease_grant",
+      "jmespath": "granted",
+      "operator": "count_eq",
+      "expected_value": true,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/grpc", "grpc-status": "6" },
+    "body": "{\"grpc_status\": 6, \"message\": \"ALREADY_EXISTS: Lease owned by another worker\"}",
+    "elapsed_ms": 25.0,
+    "ttfb_ms": 12.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/grpc", "grpc-status": "0" },
+      "body": "{\"grpc_status\": 0, \"lease_id\": 88201, \"granted\": true}",
+      "elapsed_ms": 18.0,
+      "ttfb_ms": 9.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/grpc", "grpc-status": "6" },
+      "body": "{\"grpc_status\": 6, \"lease_id\": 0, \"granted\": false}",
+      "elapsed_ms": 18.3,
+      "ttfb_ms": 9.1
+    }
+  ]
+}
+

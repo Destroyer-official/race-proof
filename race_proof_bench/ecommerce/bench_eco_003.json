@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-ECO-003",
+  "domain": "ecommerce",
+  "defect_class": "BENIGN_SERIALIZED",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "Atomic SQL condition UPDATE products SET stock = stock - 1 WHERE stock >= 1 safely permits 1 winner",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "raw-sql",
+    "failure_root_cause": "N/A - Conditional SQL update guarantees atomicity"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_inventory_winner",
+      "operator": "count_eq",
+      "target_status": 200,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 409,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"Sold out\"}",
+    "elapsed_ms": 30.0,
+    "ttfb_ms": 15.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"order\": \"success\", \"item_id\": \"item_44\", \"stock\": 0}",
+      "elapsed_ms": 22.0,
+      "ttfb_ms": 11.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 409,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"Sold out\"}",
+      "elapsed_ms": 22.5,
+      "ttfb_ms": 11.2
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 409,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"Sold out\"}",
+      "elapsed_ms": 22.8,
+      "ttfb_ms": 11.5
+    }
+  ]
+}
+

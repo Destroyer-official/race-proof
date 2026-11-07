@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<items burpVersion="2024.1.1">
+  <item>
+    <time>1700000000000</time>
+    <url>https://bank.example/api/withdraw</url>
+    <status>200</status>
+    <response base64="true">SFRUUC8xLjEgMjAwIE9LDQpDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb24NCg0KeyJiYWxhbmNlIjogMTAwfQ==</response>
+  </item>
+  <item>
+    <time>1700000001000</time>
+    <url>https://bank.example/api/withdraw</url>
+    <status>200</status>
+    <response base64="true">SFRUUC8xLjEgMjAwIE9LDQpDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb24NCg0KeyJiYWxhbmNlIjogNTAsICJ3aXRoZHJhd24iOiA1MH0=</response>
+  </item>
+  <item>
+    <time>1700000001002</time>
+    <url>https://bank.example/api/withdraw</url>
+    <status>200</status>
+    <response base64="true">SFRUUC8xLjEgMjAwIE9LDQpDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb24NCg0KeyJiYWxhbmNlIjogMCwgIndpdGhkcmF3biI6IDUwfQ==</response>
+  </item>
+  <item>
+    <time>1700000001004</time>
+    <url>https://bank.example/api/withdraw</url>
+    <status>200</status>
+    <response base64="true">SFRUUC8xLjEgMjAwIE9LDQpDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL2pzb24NCg0KeyJiYWxhbmNlIjogLTUwLCAid2l0aGRyYXduIjogNTB9</response>
+  </item>
+</items>
+

@@ -1,0 +1,41 @@
+{
+  "scenario_id": "bench_csh_001",
+  "domain": "cache_stampede",
+  "title": "Redis Cache Invalidation Dogpiling Stampede",
+  "description": "Cache key expiration under concurrent traffic triggers multiple backend recalculations that concurrently grant reward balances.",
+  "ground_truth_verdict": "CONFIRMED",
+  "vulnerability_class": "LOST_UPDATE",
+  "attack_window_ms": 12.4,
+  "expected_invariant_violation": "single_reward_grant",
+  "baseline": {
+    "status_code": 404,
+    "elapsed_ms": 25.0,
+    "ttfb_ms": 10.0,
+    "body": "{\"error\": \"reward_already_claimed\", \"granted\": false}"
+  },
+  "race_responses": [
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "elapsed_ms": 48.0,
+      "ttfb_ms": 22.0,
+      "body": "{\"reward_id\": \"CLAIMED_001\", \"points\": 500, \"granted\": true}"
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "elapsed_ms": 49.5,
+      "ttfb_ms": 22.5,
+      "body": "{\"reward_id\": \"CLAIMED_002\", \"points\": 500, \"granted\": true}"
+    }
+  ],
+  "invariants": [
+    {
+      "target_field": "body.reward_id",
+      "operator": "single_200_winner",
+      "threshold": 1,
+      "severity": "CRITICAL"
+    }
+  ]
+}
+

@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-AUT-004",
+  "domain": "auth_identity",
+  "defect_class": "TOCTOU",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Password reset token reuse: concurrent requests successfully set new passwords before token deletion commits",
+  "backend_environment": {
+    "db_engine": "mysql-8.0",
+    "isolation_level": "READ COMMITTED",
+    "orm": "spring-data-jpa",
+    "failure_root_cause": "Token validated in service layer and marked used in separate asynchronous transaction"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_password_reset_success",
+      "jmespath": "status",
+      "operator": "count_gt",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 400,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"token_expired_or_used\"}",
+    "elapsed_ms": 35.0,
+    "ttfb_ms": 18.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"status\": \"password_reset_successful\", \"user_id\": \"usr_881\", \"session_token\": \"sess_a1b2\"}",
+      "elapsed_ms": 28.0,
+      "ttfb_ms": 14.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"status\": \"password_reset_successful\", \"user_id\": \"usr_881\", \"session_token\": \"sess_c3d4\"}",
+      "elapsed_ms": 28.2,
+      "ttfb_ms": 14.1
+    }
+  ]
+}
+

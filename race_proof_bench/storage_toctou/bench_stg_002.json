@@ -1,0 +1,41 @@
+{
+  "scenario_id": "bench_stg_002",
+  "domain": "storage_toctou",
+  "title": "Cloud Object Store Object Lock Protection (Benign)",
+  "description": "Bucket enforces Object Lock / WORM; concurrent overwrite attempt receives 409 Conflict.",
+  "ground_truth_verdict": "BENIGN",
+  "vulnerability_class": "BENIGN_IMMUTABLE",
+  "attack_window_ms": 0.0,
+  "expected_invariant_violation": "None",
+  "baseline": {
+    "status_code": 409,
+    "elapsed_ms": 30.0,
+    "ttfb_ms": 12.0,
+    "body": "{\"error\": \"object_locked_worm_enforced\", \"committed\": false}"
+  },
+  "race_responses": [
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "elapsed_ms": 38.0,
+      "ttfb_ms": 16.0,
+      "body": "{\"status\": \"uploaded\", \"etag\": \"etag_original_111\", \"size\": 1024}"
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 409,
+      "elapsed_ms": 39.0,
+      "ttfb_ms": 16.5,
+      "body": "{\"error\": \"object_locked_worm_enforced\", \"committed\": false}"
+    }
+  ],
+  "invariants": [
+    {
+      "target_field": "body.etag",
+      "operator": "single_200_winner",
+      "threshold": 1,
+      "severity": "CRITICAL"
+    }
+  ]
+}
+

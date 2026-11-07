@@ -1,0 +1,52 @@
+name: "RaceProof Concurrency Verification"
+description: "Industrial-strength verification and formal proof engine for API race conditions"
+author: "RaceProof Engineering"
+branding:
+  icon: "shield"
+  color: "cyan"
+
+inputs:
+  input:
+    description: "Path to tool output file (Turbo Intruder, Burp XML, HAR, mitmproxy, Postman, k6, OTel, WebSocket)"
+    required: true
+  invariants:
+    description: "Path to optional YAML invariant rules file"
+    required: false
+    default: ""
+  fail-on:
+    description: "Verdict level to fail the CI/CD pipeline on (CONFIRMED, UNCERTAIN)"
+    required: false
+    default: "CONFIRMED"
+  sarif-out:
+    description: "Path to export SARIF 2.1.0 static analysis report"
+    required: false
+    default: "race_proof_findings.sarif"
+  output-dir:
+    description: "Directory to write court-ready evidence bundles"
+    required: false
+    default: "./race_proof_findings"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install RaceProof
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install race-proof
+
+    - name: Run RaceProof Verification
+      shell: bash
+      run: |
+        CMD="race-proof verify -i '${{ inputs.input }}' -o '${{ inputs.output-dir }}'"
+        if [ -n "${{ inputs.invariants }}" ]; then
+          CMD="$CMD -r '${{ inputs.invariants }}'"
+        fi
+        echo "Executing: $CMD"
+        $CMD
+

@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-QUE-003",
+  "domain": "distributed_queues",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Distributed queue duplicate consumption: message processed concurrently by two worker nodes before delete",
+  "backend_environment": {
+    "db_engine": "amazon-sqs",
+    "isolation_level": "AT-LEAST-ONCE",
+    "orm": "boto3-worker",
+    "failure_root_cause": "Short visibility timeout causes message redelivery during long-running processing step"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_queue_consumer",
+      "jmespath": "execution_count",
+      "operator": "lte",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 404,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"message_already_acknowledged\", \"execution_count\": 1}",
+    "elapsed_ms": 50.0,
+    "ttfb_ms": 25.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"task_id\": \"task_442\", \"status\": \"processed\", \"execution_count\": 2}",
+      "elapsed_ms": 42.0,
+      "ttfb_ms": 21.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"task_id\": \"task_442\", \"status\": \"processed\", \"execution_count\": 3}",
+      "elapsed_ms": 42.4,
+      "ttfb_ms": 21.2
+    }
+  ]
+}
+

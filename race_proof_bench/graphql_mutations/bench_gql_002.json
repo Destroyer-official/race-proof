@@ -1,0 +1,49 @@
+{
+  "scenario_id": "BENCH-GQL-002",
+  "domain": "graphql_mutations",
+  "defect_class": "BENIGN_SERIALIZED",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "GraphQL root mutation executed sequentially according to spec §6.4.3: exactly 1 succeeds",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "SERIALIZABLE",
+    "orm": "graphql-java",
+    "failure_root_cause": "N/A - Standard GraphQL mutation execution serializes root fields sequentially"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_graphql_mutation_success",
+      "jmespath": "data.claimVoucher.success",
+      "operator": "count_eq",
+      "expected_value": true,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"data\": {\"claimVoucher\": null}, \"errors\": [{\"message\": \"Voucher already claimed\"}]}",
+    "elapsed_ms": 35.0,
+    "ttfb_ms": 18.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"data\": {\"claimVoucher\": {\"voucher_id\": \"V1\", \"success\": true, \"credits\": 50}}}",
+      "elapsed_ms": 28.0,
+      "ttfb_ms": 14.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"data\": {\"claimVoucher\": null}, \"errors\": [{\"message\": \"Voucher already claimed\"}]}",
+      "elapsed_ms": 28.5,
+      "ttfb_ms": 14.3
+    }
+  ]
+}
+

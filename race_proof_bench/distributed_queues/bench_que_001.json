@@ -1,0 +1,49 @@
+{
+  "scenario_id": "BENCH-QUE-001",
+  "domain": "distributed_queues",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Kafka consumer group rebalance causes duplicate message dispatch and concurrent payout execution",
+  "backend_environment": {
+    "db_engine": "mysql-8.0",
+    "isolation_level": "READ COMMITTED",
+    "orm": "spring-kafka",
+    "failure_root_cause": "enable.auto.commit=false offset committed after slow external payout API call, causing re-dispatch to second worker"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_payout_execution",
+      "jmespath": "payout_status",
+      "operator": "count_gt",
+      "expected_value": "DISBURSED",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 409,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"Payout already disbursed for event_id evt_kfk_101\"}",
+    "elapsed_ms": 35.0,
+    "ttfb_ms": 18.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"worker_id\": \"node_01\", \"event_id\": \"evt_kfk_101\", \"payout_status\": \"DISBURSED\"}",
+      "elapsed_ms": 25.0,
+      "ttfb_ms": 12.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"worker_id\": \"node_02\", \"event_id\": \"evt_kfk_101\", \"payout_status\": \"DISBURSED\"}",
+      "elapsed_ms": 25.2,
+      "ttfb_ms": 12.1
+    }
+  ]
+}
+

@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-FIN-002",
+  "domain": "fintech",
+  "defect_class": "WRITE_SKEW",
+  "cwe": "CWE-841",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Multi-account overdraft race condition violating joint credit limit under Snapshot Isolation",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "REPEATABLE READ",
+    "orm": "sqlalchemy",
+    "failure_root_cause": "Snapshot isolation permits concurrent withdrawals from checking and savings when invariant checks sum(checking, savings) >= 0"
+  },
+  "expected_invariants": [
+    {
+      "id": "joint_balance_positive",
+      "jmespath": "remaining_credit",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 403,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"credit_limit_exceeded\", \"remaining_credit\": -50.0}",
+    "elapsed_ms": 50.0,
+    "ttfb_ms": 30.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"account\": \"checking\", \"withdrawn\": 400.0, \"remaining_credit\": -50.0}",
+      "elapsed_ms": 41.2,
+      "ttfb_ms": 20.1
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"account\": \"savings\", \"withdrawn\": 400.0, \"remaining_credit\": -50.0}",
+      "elapsed_ms": 41.5,
+      "ttfb_ms": 20.3
+    }
+  ]
+}
+

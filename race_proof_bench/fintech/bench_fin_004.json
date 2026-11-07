@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-FIN-004",
+  "domain": "fintech",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Multi-currency wallet conversion: concurrent conversion requests debit the same base balance multiple times",
+  "backend_environment": {
+    "db_engine": "mongodb-7.0",
+    "isolation_level": "LOCAL",
+    "orm": "mongoose",
+    "failure_root_cause": "Non-transactional document update without optimistic concurrency control version tag"
+  },
+  "expected_invariants": [
+    {
+      "id": "base_balance_non_negative",
+      "jmespath": "base_balance",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 400,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"insufficient_usd_funds\", \"base_balance\": 0.0}",
+    "elapsed_ms": 40.0,
+    "ttfb_ms": 20.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"converted_eur\": 92.5, \"base_balance\": -100.0, \"status\": \"completed\"}",
+      "elapsed_ms": 22.0,
+      "ttfb_ms": 11.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"converted_eur\": 92.5, \"base_balance\": -200.0, \"status\": \"completed\"}",
+      "elapsed_ms": 22.3,
+      "ttfb_ms": 11.1
+    }
+  ]
+}
+

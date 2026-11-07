@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-AUT-001",
+  "domain": "auth_identity",
+  "defect_class": "LIMIT_OVERRUN",
+  "cwe": "CWE-799",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Single-use organization invite token registered by 4 concurrent users simultaneously",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "prisma",
+    "failure_root_cause": "Invite validation and member insertion in separate un-isolated queries without table lock or unique constraint"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_registration",
+      "operator": "count_gt",
+      "target_status": 201,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 400,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"Invite token has already been claimed\"}",
+    "elapsed_ms": 35.0,
+    "ttfb_ms": 18.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 201,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"user_id\": \"usr_01\", \"org_id\": \"org_prime\", \"status\": \"joined\"}",
+      "elapsed_ms": 26.0,
+      "ttfb_ms": 13.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 201,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"user_id\": \"usr_02\", \"org_id\": \"org_prime\", \"status\": \"joined\"}",
+      "elapsed_ms": 26.2,
+      "ttfb_ms": 13.1
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 201,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"user_id\": \"usr_03\", \"org_id\": \"org_prime\", \"status\": \"joined\"}",
+      "elapsed_ms": 26.4,
+      "ttfb_ms": 13.3
+    }
+  ]
+}
+

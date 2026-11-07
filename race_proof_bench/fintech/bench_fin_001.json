@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-FIN-001",
+  "domain": "fintech",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Double-spend wallet balance debit missing row-level SELECT FOR UPDATE",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "django-orm",
+    "failure_root_cause": "Wallet model read-modify-write loop without F() expressions or select_for_update()"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_debit_winner",
+      "jmespath": "balance",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 400,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"insufficient_balance\", \"balance\": 0.0}",
+    "elapsed_ms": 45.0,
+    "ttfb_ms": 25.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"status\": \"success\", \"debited\": 100.0, \"balance\": 0.0}",
+      "elapsed_ms": 32.1,
+      "ttfb_ms": 15.2
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"status\": \"success\", \"debited\": 100.0, \"balance\": 0.0}",
+      "elapsed_ms": 32.4,
+      "ttfb_ms": 15.4
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"status\": \"success\", \"debited\": 100.0, \"balance\": 0.0}",
+      "elapsed_ms": 32.8,
+      "ttfb_ms": 15.7
+    }
+  ]
+}
+

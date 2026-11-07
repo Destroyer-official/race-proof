@@ -1,0 +1,62 @@
+{
+  "collection": {
+    "info": {
+      "name": "Race Condition Test Collection",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    }
+  },
+  "run": {
+    "executions": [
+      {
+        "item": {
+          "request": {
+            "method": "POST",
+            "url": { "raw": "https://api.fintech.test/wallets/transfer" },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer test-jwt-token" }
+            ]
+          }
+        },
+        "response": {
+          "code": 400,
+          "responseTime": 45,
+          "stream": {
+            "data": "{\"error\": \"insufficient_balance\", \"balance\": 0.0}"
+          }
+        }
+      },
+      {
+        "item": {
+          "request": {
+            "method": "POST",
+            "url": { "raw": "https://api.fintech.test/wallets/transfer" }
+          }
+        },
+        "response": {
+          "code": 200,
+          "responseTime": 28,
+          "stream": {
+            "data": "{\"status\": \"success\", \"transferred\": 100.0, \"balance\": 0.0}"
+          }
+        }
+      },
+      {
+        "item": {
+          "request": {
+            "method": "POST",
+            "url": { "raw": "https://api.fintech.test/wallets/transfer" }
+          }
+        },
+        "response": {
+          "code": 200,
+          "responseTime": 29,
+          "stream": {
+            "data": "{\"status\": \"success\", \"transferred\": 100.0, \"balance\": 0.0}"
+          }
+        }
+      }
+    ]
+  }
+}
+

@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "race-proof"
+version = "0.2.0"
+description = "Deterministic concurrency verification and formal state-space analysis engine for HTTP APIs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = ["security", "race-condition", "concurrency", "verification", "tla+", "sarif"]
+authors = [
+    { name = "RaceProof Engineering", email = "security@race-proof.org" }
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Rust",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
+
+dependencies = [
+    "click>=8.1",
+    "rich>=13.7",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "jmespath>=1.0",
+    "jinja2>=3.1",
+    "simhash>=2.1",
+    "jsondiff>=2.0",
+    "lxml>=5.0",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+    "httpx>=0.26",
+    "textual>=0.80.0",
+]
+
+[project.optional-dependencies]
+core = [
+    "race-proof-core>=0.2.0",
+]
+ml = [
+    "scikit-learn>=1.4",
+    "lightgbm>=4.3",
+    "shap>=0.44",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "hypothesis>=6.92",
+    "maturin>=1.5",
+]
+
+[project.scripts]
+race-proof = "race_proof.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["race_proof*", "race_proof_bench*"]
+exclude = ["crates*", "model*", "tests*", "examples*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-RPC-003",
+  "domain": "grpc_microservices",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "gRPC unary service race: concurrent UpdateLicenseRPC calls both succeed without lock",
+  "backend_environment": {
+    "db_engine": "etcd-v3.5",
+    "isolation_level": "RAFT-LINEARIZABLE",
+    "orm": "grpc-go",
+    "failure_root_cause": "Go goroutines handling concurrent RPC calls perform non-atomic compare-and-swap"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_license_binding",
+      "jmespath": "assigned_seats",
+      "operator": "lte",
+      "threshold": 5.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/grpc+proto", "grpc-status": "8" },
+    "body": "{\"error\": \"resource_exhausted\", \"assigned_seats\": 5}",
+    "elapsed_ms": 25.0,
+    "ttfb_ms": 12.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/grpc+proto", "grpc-status": "0" },
+      "body": "{\"status\": \"seat_assigned\", \"assigned_seats\": 6}",
+      "elapsed_ms": 16.0,
+      "ttfb_ms": 8.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/grpc+proto", "grpc-status": "0" },
+      "body": "{\"status\": \"seat_assigned\", \"assigned_seats\": 7}",
+      "elapsed_ms": 16.2,
+      "ttfb_ms": 8.1
+    }
+  ]
+}
+

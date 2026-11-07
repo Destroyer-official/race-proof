@@ -1,0 +1,48 @@
+{
+  "scenario_id": "BENCH-GQL-003",
+  "domain": "graphql_mutations",
+  "defect_class": "TOCTOU",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "GraphQL alias-based concurrent mutation amplification: batch of 3 mutations executed asynchronously",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "asyncpg",
+    "failure_root_cause": "GraphQL resolver resolves aliased field promises in parallel without shared transaction context"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_credit_deduction",
+      "jmespath": "data.redeemCredit.credits_remaining",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"data\": {\"redeemCredit\": null}, \"errors\": [{\"message\": \"insufficient_credits\"}]}",
+    "elapsed_ms": 30.0,
+    "ttfb_ms": 15.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"data\": {\"m1\": {\"status\": \"redeemed\", \"credits_remaining\": -1}}}",
+      "elapsed_ms": 22.0,
+      "ttfb_ms": 11.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"data\": {\"m2\": {\"status\": \"redeemed\", \"credits_remaining\": -2}}}",
+      "elapsed_ms": 22.2,
+      "ttfb_ms": 11.1
+    }
+  ]
+}
+

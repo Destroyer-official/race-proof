@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-QUE-004",
+  "domain": "distributed_queues",
+  "defect_class": "BENIGN",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "Distributed lock with Redlock: only 1 consumer acquires lock, duplicate workers receive lock rejection",
+  "backend_environment": {
+    "db_engine": "redis-cluster",
+    "isolation_level": "REDLOCK",
+    "orm": "redlock-py",
+    "failure_root_cause": "Protected by majority quorum distributed lock"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_lock_holder",
+      "jmespath": "status",
+      "expected_value": "acquired_and_executed",
+      "operator": "count_gt",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 423,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"resource_locked\", \"status\": \"locked\"}",
+    "elapsed_ms": 30.0,
+    "ttfb_ms": 15.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"task_id\": \"task_991\", \"status\": \"acquired_and_executed\"}",
+      "elapsed_ms": 25.0,
+      "ttfb_ms": 12.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 423,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"lock_failed\", \"status\": \"rejected\"}",
+      "elapsed_ms": 25.3,
+      "ttfb_ms": 12.1
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 423,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"lock_failed\", \"status\": \"rejected\"}",
+      "elapsed_ms": 25.5,
+      "ttfb_ms": 12.2
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "scenario_id": "bench_stg_001",
+  "domain": "storage_toctou",
+  "title": "Cloud Object Store Presigned PUT Overwrite TOCTOU",
+  "description": "Attacker concurrently overwrites benign image with malicious payload while antivirus worker validates the initial upload.",
+  "ground_truth_verdict": "CONFIRMED",
+  "vulnerability_class": "TOCTOU_DOUBLE_SPEND",
+  "attack_window_ms": 18.2,
+  "expected_invariant_violation": "single_version_commit",
+  "baseline": {
+    "status_code": 403,
+    "elapsed_ms": 35.0,
+    "ttfb_ms": 15.0,
+    "body": "{\"error\": \"upload_expired\", \"committed\": false}"
+  },
+  "race_responses": [
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "elapsed_ms": 40.0,
+      "ttfb_ms": 18.0,
+      "body": "{\"status\": \"uploaded\", \"etag\": \"etag_benign_111\", \"size\": 1024}"
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "elapsed_ms": 41.5,
+      "ttfb_ms": 18.5,
+      "body": "{\"status\": \"uploaded\", \"etag\": \"etag_malicious_999\", \"size\": 2048}"
+    }
+  ],
+  "invariants": [
+    {
+      "target_field": "body.etag",
+      "operator": "single_200_winner",
+      "threshold": 1,
+      "severity": "CRITICAL"
+    }
+  ]
+}
+

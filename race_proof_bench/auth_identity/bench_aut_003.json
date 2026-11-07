@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-AUT-003",
+  "domain": "auth_identity",
+  "defect_class": "BENIGN_SERIALIZED",
+  "cwe": "CWE-689",
+  "ground_truth_verdict": "BENIGN",
+  "description": "OAuth2 single-use authorization code exchanged concurrently: exactly 1 token granted, others 400 invalid_grant",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "SERIALIZABLE",
+    "orm": "django-oauth-toolkit",
+    "failure_root_cause": "N/A - Atomic code invalidation on read prevents replay"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_token_exchange",
+      "operator": "count_eq",
+      "target_status": 200,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 400,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"invalid_grant\", \"error_description\": \"Code has already been consumed\"}",
+    "elapsed_ms": 30.0,
+    "ttfb_ms": 15.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"access_token\": \"at_valid_9981\", \"token_type\": \"Bearer\", \"expires_in\": 3600}",
+      "elapsed_ms": 22.0,
+      "ttfb_ms": 11.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 400,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"invalid_grant\", \"error_description\": \"Code has already been consumed\"}",
+      "elapsed_ms": 22.4,
+      "ttfb_ms": 11.2
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 400,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"invalid_grant\", \"error_description\": \"Code has already been consumed\"}",
+      "elapsed_ms": 22.7,
+      "ttfb_ms": 11.4
+    }
+  ]
+}
+

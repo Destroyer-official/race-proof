@@ -1,0 +1,60 @@
+[
+  {
+    "request": {
+      "method": "POST",
+      "scheme": "https",
+      "host": "bank.test",
+      "port": 443,
+      "path": "/api/v1/coupon/redeem",
+      "timestamp_start": 1730970000.0,
+      "headers": [
+        ["User-Agent", "mitmproxy/10.0"],
+        ["Content-Type", "application/json"]
+      ]
+    },
+    "response": {
+      "status_code": 409,
+      "content": "{\"error\": \"coupon_already_claimed\", \"remaining\": 0}",
+      "timestamp_start": 1730970000.035,
+      "timestamp_end": 1730970000.065,
+      "headers": [["Content-Type", "application/json"]]
+    }
+  },
+  {
+    "request": {
+      "method": "POST",
+      "scheme": "https",
+      "host": "bank.test",
+      "port": 443,
+      "path": "/api/v1/coupon/redeem",
+      "timestamp_start": 1730970000.001,
+      "headers": [["Content-Type", "application/json"]]
+    },
+    "response": {
+      "status_code": 200,
+      "content": "{\"status\": \"redeemed\", \"discount\": 50, \"remaining\": -1}",
+      "timestamp_start": 1730970000.015,
+      "timestamp_end": 1730970000.030,
+      "headers": [["Content-Type", "application/json"]]
+    }
+  },
+  {
+    "request": {
+      "method": "POST",
+      "scheme": "https",
+      "host": "bank.test",
+      "port": 443,
+      "path": "/api/v1/coupon/redeem",
+      "timestamp_start": 1730970000.002,
+      "headers": [["Content-Type", "application/json"]]
+    },
+    "response": {
+      "status_code": 200,
+      "content": "{\"status\": \"redeemed\", \"discount\": 50, \"remaining\": -2}",
+      "timestamp_start": 1730970000.016,
+      "timestamp_end": 1730970000.031,
+      "headers": [["Content-Type", "application/json"]]
+    }
+  }
+]
+

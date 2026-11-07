@@ -1,0 +1,49 @@
+{
+  "scenario_id": "BENCH-QUE-002",
+  "domain": "distributed_queues",
+  "defect_class": "BENIGN_SERIALIZED",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "SQS consumer using database idempotency key table: duplicate message delivery gracefully collapses to single execution",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "django-orm",
+    "failure_root_cause": "N/A - Idempotency table with UNIQUE(message_id) safely drops duplicate worker executions"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_queue_consumer_success",
+      "jmespath": "execution_status",
+      "operator": "count_eq",
+      "expected_value": "PROCESSED",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"message_id\": \"msg_sqs_992\", \"execution_status\": \"DUPLICATE_IGNORED\"}",
+    "elapsed_ms": 28.0,
+    "ttfb_ms": 14.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"message_id\": \"msg_sqs_992\", \"execution_status\": \"PROCESSED\"}",
+      "elapsed_ms": 20.0,
+      "ttfb_ms": 10.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"message_id\": \"msg_sqs_992\", \"execution_status\": \"DUPLICATE_IGNORED\"}",
+      "elapsed_ms": 20.4,
+      "ttfb_ms": 10.2
+    }
+  ]
+}
+

@@ -1,0 +1,5 @@
+{"template-id": "race-coupon-redeem", "matched-at": "https://target.local/api/redeem", "response": {"status-code": 200, "headers": {"content-type": "application/json"}, "body": "{\"status\": \"baseline\", \"credits\": 0, \"total\": 100}"}}
+{"template-id": "race-coupon-redeem", "matched-at": "https://target.local/api/redeem", "response": {"status-code": 200, "headers": {"content-type": "application/json"}, "body": "{\"redeemed\": true, \"credits\": 50, \"total\": 150}"}}
+{"template-id": "race-coupon-redeem", "matched-at": "https://target.local/api/redeem", "response": {"status-code": 200, "headers": {"content-type": "application/json"}, "body": "{\"redeemed\": true, \"credits\": 50, \"total\": 200}"}}
+{"template-id": "race-coupon-redeem", "matched-at": "https://target.local/api/redeem", "response": {"status-code": 400, "headers": {"content-type": "application/json"}, "body": "{\"error\": \"Code already used\"}"}}
+

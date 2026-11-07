@@ -1,0 +1,39 @@
+[
+  {
+    "id": "coupon_race_demo",
+    "baseline": {
+      "status": 200,
+      "headers": {"Content-Type": "application/json"},
+      "body": "{\"status\":\"success\",\"discount_applied\":true,\"balance\":100,\"remaining_redemptions\":1}",
+      "elapsed_ms": 145.2
+    },
+    "race_responses": [
+      {
+        "status": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": "{\"status\":\"success\",\"discount_applied\":true,\"balance\":80,\"remaining_redemptions\":0}",
+        "elapsed_ms": 141.2,
+        "ttfb_ms": 138.0
+      },
+      {
+        "status": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": "{\"status\":\"success\",\"discount_applied\":true,\"balance\":60,\"remaining_redemptions\":-1}",
+        "elapsed_ms": 141.8,
+        "ttfb_ms": 138.4
+      },
+      {
+        "status": 400,
+        "headers": {"Content-Type": "application/json"},
+        "body": "{\"status\":\"error\",\"message\":\"Coupon already redeemed\"}",
+        "elapsed_ms": 158.9,
+        "ttfb_ms": 155.0
+      }
+    ],
+    "metadata": {
+      "target_url": "https://api.shop.example/v1/coupons/redeem",
+      "method": "POST"
+    }
+  }
+]
+

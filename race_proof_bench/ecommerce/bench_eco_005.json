@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-ECO-005",
+  "domain": "ecommerce",
+  "defect_class": "BENIGN",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "Inventory checkout with pessimistic locking: exactly 1 purchase succeeds, others rejected",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "sqlalchemy",
+    "failure_root_cause": "Protected by with_for_update() row lock"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_stock_winner",
+      "jmespath": "status",
+      "operator": "count_gt",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 409,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"out_of_stock\", \"remaining\": 0}",
+    "elapsed_ms": 32.0,
+    "ttfb_ms": 15.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"order_id\": \"ORD-771\", \"status\": \"success\", \"remaining\": 0}",
+      "elapsed_ms": 28.0,
+      "ttfb_ms": 14.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 409,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"out_of_stock\", \"remaining\": 0}",
+      "elapsed_ms": 29.5,
+      "ttfb_ms": 14.2
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 409,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"out_of_stock\", \"remaining\": 0}",
+      "elapsed_ms": 30.1,
+      "ttfb_ms": 14.5
+    }
+  ]
+}
+

@@ -1,0 +1,49 @@
+{
+  "scenario_id": "BENCH-GQL-001",
+  "domain": "graphql_mutations",
+  "defect_class": "LIMIT_OVERRUN",
+  "cwe": "CWE-799",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "GraphQL mutation aliasing race: multiple claimVoucher mutations sent in single batch query bypass balance check",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "READ COMMITTED",
+    "orm": "typeorm",
+    "failure_root_cause": "GraphQL resolver resolves aliased root mutations in parallel Promise.all() without transaction wrap"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_voucher_claimed",
+      "jmespath": "data.claimVoucher.success",
+      "operator": "count_gt",
+      "expected_value": true,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"data\": {\"claimVoucher\": null}, \"errors\": [{\"message\": \"Voucher already claimed\"}]}",
+    "elapsed_ms": 42.0,
+    "ttfb_ms": 22.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"data\": {\"claimVoucher\": {\"voucher_id\": \"V1\", \"success\": true, \"credits\": 50}}}",
+      "elapsed_ms": 31.0,
+      "ttfb_ms": 16.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"data\": {\"claimVoucher\": {\"voucher_id\": \"V1\", \"success\": true, \"credits\": 50}}}",
+      "elapsed_ms": 31.3,
+      "ttfb_ms": 16.2
+    }
+  ]
+}
+

@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-AUT-002",
+  "domain": "auth_identity",
+  "defect_class": "TOCTOU",
+  "cwe": "CWE-307",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "SMS 2FA OTP verification rate limit counter bypass via 20 parallel requests in single TCP window",
+  "backend_environment": {
+    "db_engine": "redis-7.2",
+    "isolation_level": "N/A",
+    "orm": "ioredis",
+    "failure_root_cause": "Rate limit check (GET attempts) separated from increment (INCR attempts) without Redis MULTI/EXEC or Lua script"
+  },
+  "expected_invariants": [
+    {
+      "id": "rate_limit_lockout",
+      "operator": "count_gt",
+      "target_status": 200,
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 429,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"Too many attempts. Account locked for 15 minutes.\"}",
+    "elapsed_ms": 25.0,
+    "ttfb_ms": 12.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"auth\": \"success\", \"token\": \"jwt_race_session_01\"}",
+      "elapsed_ms": 19.1,
+      "ttfb_ms": 9.2
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"auth\": \"success\", \"token\": \"jwt_race_session_02\"}",
+      "elapsed_ms": 19.3,
+      "ttfb_ms": 9.4
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 401,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"error\": \"Invalid OTP code\"}",
+      "elapsed_ms": 19.5,
+      "ttfb_ms": 9.6
+    }
+  ]
+}
+

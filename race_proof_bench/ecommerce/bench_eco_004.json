@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-ECO-004",
+  "domain": "ecommerce",
+  "defect_class": "LOST_UPDATE",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "CONFIRMED",
+  "description": "Flash-sale inventory oversell: concurrent checkout debits exceed total available stock",
+  "backend_environment": {
+    "db_engine": "mysql-8.0",
+    "isolation_level": "REPEATABLE READ",
+    "orm": "prisma",
+    "failure_root_cause": "Unsynchronized stock count decrement allows 3 orders when only 1 unit remained"
+  },
+  "expected_invariants": [
+    {
+      "id": "stock_non_negative",
+      "jmespath": "remaining_stock",
+      "operator": "gte",
+      "threshold": 0.0
+    }
+  ],
+  "baseline": {
+    "status_code": 409,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"error\": \"out_of_stock\", \"remaining_stock\": 0}",
+    "elapsed_ms": 38.0,
+    "ttfb_ms": 18.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"order_id\": \"ORD-901\", \"status\": \"confirmed\", \"remaining_stock\": -1}",
+      "elapsed_ms": 25.1,
+      "ttfb_ms": 12.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"order_id\": \"ORD-902\", \"status\": \"confirmed\", \"remaining_stock\": -2}",
+      "elapsed_ms": 25.3,
+      "ttfb_ms": 12.1
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"order_id\": \"ORD-903\", \"status\": \"confirmed\", \"remaining_stock\": -3}",
+      "elapsed_ms": 25.5,
+      "ttfb_ms": 12.3
+    }
+  ]
+}
+

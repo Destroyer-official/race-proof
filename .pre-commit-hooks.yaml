@@ -1,0 +1,15 @@
+- id: race-proof-bench
+  name: RaceProof Benchmark Verification
+  description: Verifies concurrency verification precision against the ground-truth benchmark corpus
+  entry: race-proof bench
+  language: python
+  pass_filenames: false
+  always_run: true
+
+- id: race-proof-prove
+  name: RaceProof Formal Concurrency Prover
+  description: Mathematically explores state-space interleavings using TLA+
+  entry: race-proof prove
+  language: python
+  types: [json]
+

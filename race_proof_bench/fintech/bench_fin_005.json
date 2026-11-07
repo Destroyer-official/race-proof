@@ -1,0 +1,56 @@
+{
+  "scenario_id": "BENCH-FIN-005",
+  "domain": "fintech",
+  "defect_class": "BENIGN",
+  "cwe": "CWE-362",
+  "ground_truth_verdict": "BENIGN",
+  "description": "Payment authorization with Idempotency-Key: duplicate concurrent submissions safely deduplicated",
+  "backend_environment": {
+    "db_engine": "postgresql-16",
+    "isolation_level": "SERIALIZABLE",
+    "orm": "stripe-patterns",
+    "failure_root_cause": "Idempotency key uniqueness constraint prevents double charge"
+  },
+  "expected_invariants": [
+    {
+      "id": "single_fresh_charge",
+      "jmespath": "idempotent_replay",
+      "expected_value": false,
+      "operator": "count_gt",
+      "threshold": 1.0
+    }
+  ],
+  "baseline": {
+    "status_code": 200,
+    "headers": { "content-type": "application/json" },
+    "body": "{\"payment_id\": \"pi_1001\", \"status\": \"succeeded\", \"amount\": 5000}",
+    "elapsed_ms": 55.0,
+    "ttfb_ms": 30.0
+  },
+  "race_responses": [
+    {
+      "sequence_index": 0,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"payment_id\": \"pi_1001\", \"status\": \"succeeded\", \"amount\": 5000, \"idempotent_replay\": false}",
+      "elapsed_ms": 48.0,
+      "ttfb_ms": 25.0
+    },
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"payment_id\": \"pi_1001\", \"status\": \"succeeded\", \"amount\": 5000, \"idempotent_replay\": true}",
+      "elapsed_ms": 48.2,
+      "ttfb_ms": 25.1
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "headers": { "content-type": "application/json" },
+      "body": "{\"payment_id\": \"pi_1001\", \"status\": \"succeeded\", \"amount\": 5000, \"idempotent_replay\": true}",
+      "elapsed_ms": 48.5,
+      "ttfb_ms": 25.2
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "rate_limited_noise",
+    "baseline": {
+      "status": 200,
+      "headers": {"Content-Type": "application/json"},
+      "body": "{\"status\":\"ok\",\"balance\":100}",
+      "elapsed_ms": 140.0
+    },
+    "race_responses": [
+      {
+        "status": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": "{\"status\":\"ok\",\"balance\":80}",
+        "elapsed_ms": 140.5
+      },
+      {
+        "status": 429,
+        "headers": {"Content-Type": "application/json"},
+        "body": "{\"error\":\"Too Many Requests\"}",
+        "elapsed_ms": 141.2
+      },
+      {
+        "status": 429,
+        "headers": {"Content-Type": "application/json"},
+        "body": "{\"error\":\"Too Many Requests\"}",
+        "elapsed_ms": 141.8
+      }
+    ],
+    "metadata": {
+      "target_url": "https://api.shop.example/v1/orders/create",
+      "method": "POST"
+    }
+  }
+]
+

@@ -1,0 +1,5 @@
+{"type": "Point", "metric": "http_req_duration", "data": {"value": 45.2, "tags": {"status": "429", "url": "https://api.test/inventory/reserve"}}}
+{"type": "Point", "metric": "http_req_duration", "data": {"value": 18.2, "tags": {"status": "200", "url": "https://api.test/inventory/reserve"}}}
+{"type": "Point", "metric": "http_req_duration", "data": {"value": 18.5, "tags": {"status": "200", "url": "https://api.test/inventory/reserve"}}}
+{"type": "Point", "metric": "http_req_duration", "data": {"value": 18.8, "tags": {"status": "200", "url": "https://api.test/inventory/reserve"}}}
+

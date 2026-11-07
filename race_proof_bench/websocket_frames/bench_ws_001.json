@@ -1,0 +1,41 @@
+{
+  "scenario_id": "bench_ws_001",
+  "domain": "websocket_frames",
+  "title": "WebSocket Real-Time Transfer Out-of-Order Interleaving",
+  "description": "Simultaneous WebSocket SEND frames interleaving before balance verification commits, causing duplicate transfer.",
+  "ground_truth_verdict": "CONFIRMED",
+  "vulnerability_class": "TOCTOU_DIRTY_READ",
+  "attack_window_ms": 3.8,
+  "expected_invariant_violation": "single_transfer_success",
+  "baseline": {
+    "status_code": 400,
+    "elapsed_ms": 12.0,
+    "ttfb_ms": 4.0,
+    "body": "{\"error\": \"insufficient_funds\", \"balance\": 0}"
+  },
+  "race_responses": [
+    {
+      "sequence_index": 1,
+      "status_code": 200,
+      "elapsed_ms": 14.2,
+      "ttfb_ms": 4.5,
+      "body": "{\"event\": \"transfer_completed\", \"amount\": 100, \"balance\": 0}"
+    },
+    {
+      "sequence_index": 2,
+      "status_code": 200,
+      "elapsed_ms": 14.5,
+      "ttfb_ms": 4.6,
+      "body": "{\"event\": \"transfer_completed\", \"amount\": 100, \"balance\": 0}"
+    }
+  ],
+  "invariants": [
+    {
+      "target_field": "body.event",
+      "operator": "single_200_winner",
+      "threshold": 1,
+      "severity": "CRITICAL"
+    }
+  ]
+}
+
