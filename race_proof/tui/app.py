@@ -60,6 +60,11 @@ class RaceProofTUI(App[None]):
     CSS = TUI_CSS
 
     BINDINGS = [
+        ("1", "quick_action('verify')", "1: Verify"),
+        ("2", "quick_action('bench')", "2: Benchmark"),
+        ("3", "quick_action('prove')", "3: Formal Proof"),
+        ("4", "quick_action('hunt')", "4: PoC Hunt"),
+        ("5", "quick_action('agent')", "5: AI Agent"),
         ("q", "quit", "Quit"),
         ("d", "switch_tab('tab-dashboard')", "Dashboard"),
         ("v", "switch_tab('tab-verify')", "Verify"),
@@ -69,6 +74,7 @@ class RaceProofTUI(App[None]):
         ("a", "switch_tab('tab-agent')", "AI Agent"),
         ("l", "switch_tab('tab-logs')", "Logs"),
     ]
+
 
     def __init__(self) -> None:
         super().__init__()
@@ -118,6 +124,16 @@ class RaceProofTUI(App[None]):
                 classes="card",
             )
 
+            # Quick Action Launchpad - Placed at Top for Zero-Scroll Immediate Accessibility
+            with Vertical(classes="card"):
+                yield Label("[bold cyan]⚡ QUICK ACTION LAUNCHPAD[/bold cyan] [dim]— Click any button below or press hotkeys [bold white]1 - 5[/bold white][/dim]", classes="info-label")
+                with Horizontal(classes="action-bar"):
+                    yield Button("🔍 1: Verify", id="btn-dash-verify", classes="-primary")
+                    yield Button("🏆 2: Benchmark", id="btn-dash-bench", classes="-success")
+                    yield Button("📐 3: Formal Proof", id="btn-dash-prove", classes="-primary")
+                    yield Button("🎯 4: PoC Hunt", id="btn-dash-hunt", classes="-warning")
+                    yield Button("🤖 5: AI Agent", id="btn-dash-agent", classes="-primary")
+
             # Executive Architecture Overview
             with Horizontal(classes="row"):
                 with Vertical(classes="engine-card"):
@@ -134,15 +150,6 @@ class RaceProofTUI(App[None]):
                     yield Label("• Offline AI Cognition: [bold green]READY[/bold green] (Qwen 4B Local GGUF, Zero Network Leaks)")
                     yield Label("• Tool Sandbox: WASI Isolated Execution with Strict CPU & Memory Limits")
 
-            # Quick Action Launchpad
-            yield Static("[bold cyan]Quick Action Launchpad (Click any button or use hotkey):[/bold cyan]", classes="card")
-            with Horizontal(classes="action-bar"):
-                yield Button("🔍 1: Verify Attack Log", id="btn-dash-verify", classes="-primary")
-                yield Button("🏆 2: Run Benchmark Suite", id="btn-dash-bench", classes="-success")
-                yield Button("📐 3: Formal TLA+ Proof", id="btn-dash-prove", classes="-primary")
-                yield Button("🎯 4: Exploit PoC Hunt", id="btn-dash-hunt", classes="-warning")
-                yield Button("🤖 5: Autonomous AI Agent", id="btn-dash-agent", classes="-primary")
-
             # Environment & Telemetry Details
             with Vertical(classes="card"):
                 yield Label("[bold cyan]Supported Tool Ingestion & Standards Compliance[/bold cyan]", classes="info-label")
@@ -151,6 +158,7 @@ class RaceProofTUI(App[None]):
                     "• Standards: SARIF 2.1.0 Static Analysis Interop, Cryptographically Signed Attestation Bundles\n"
                     "• Privacy & Architecture: Offline-first, Zero External Telemetry, 100% Deterministic Verification Core"
                 )
+
 
     # -------------------------------------------------------------------------
     # TAB 2: VERIFICATION ENGINE
@@ -426,6 +434,26 @@ class RaceProofTUI(App[None]):
         tabbed_content = self.query_one("#main-tabs", TabbedContent)
         tabbed_content.active = tab_id
 
+    def action_quick_action(self, action_type: str) -> None:
+        """Execute quick action: switch to target tab and start workflow."""
+        if action_type == "verify":
+            self.action_switch_tab("tab-verify")
+            self._handle_load_preset()
+            self._handle_run_verify()
+        elif action_type == "bench":
+            self.action_switch_tab("tab-bench")
+            self._handle_run_bench()
+        elif action_type == "prove":
+            self.action_switch_tab("tab-prove")
+            self._handle_run_proof()
+        elif action_type == "hunt":
+            self.action_switch_tab("tab-hunt")
+            self._handle_run_hunt()
+        elif action_type == "agent":
+            self.action_switch_tab("tab-agent")
+            self.query_one("#agent-goal-input", Input).focus()
+            self._handle_run_agent()
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Route button press events to corresponding handlers."""
         button_id = event.button.id
@@ -434,15 +462,16 @@ class RaceProofTUI(App[None]):
 
         # Dashboard quick links
         if button_id == "btn-dash-verify":
-            self.action_switch_tab("tab-verify")
+            self.action_quick_action("verify")
         elif button_id == "btn-dash-bench":
-            self.action_switch_tab("tab-bench")
+            self.action_quick_action("bench")
         elif button_id == "btn-dash-prove":
-            self.action_switch_tab("tab-prove")
+            self.action_quick_action("prove")
         elif button_id == "btn-dash-hunt":
-            self.action_switch_tab("tab-hunt")
+            self.action_quick_action("hunt")
         elif button_id == "btn-dash-agent":
-            self.action_switch_tab("tab-agent")
+            self.action_quick_action("agent")
+
 
         # Verify Tab
         elif button_id == "btn-load-preset":

@@ -55,6 +55,7 @@ Tab.-active {
     border-title-style: bold;
     padding: 1 2;
     margin-bottom: 1;
+    height: auto;
 }
 
 .card:hover {
@@ -79,8 +80,12 @@ Tab.-active {
     border: solid #1e293b;
     padding: 1 2;
     width: 1fr;
+    height: auto;
+    min-height: 7;
+    max-height: 9;
     margin-right: 1;
 }
+
 
 .engine-card:hover {
     border: solid #38bdf8;
@@ -150,12 +155,21 @@ Tab.-active {
 /* Buttons and Action Bars */
 .action-bar {
     height: auto;
+    width: 100%;
     layout: horizontal;
     margin-bottom: 1;
     align-vertical: middle;
 }
 
+.action-bar Button {
+    width: 1fr;
+    min-width: 12;
+    height: 3;
+    margin-right: 1;
+}
+
 Button {
+
     min-width: 16;
     height: 3;
     margin-right: 1;
