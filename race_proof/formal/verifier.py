@@ -196,3 +196,8 @@ class FormalVerifier:
             tla_spec=tla_source,
         )
 
+
+# Enterprise backward compatibility alias
+FormalConcurrencyVerifier = FormalVerifier
+
+

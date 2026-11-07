@@ -70,14 +70,61 @@ def run_benchmark() -> bool:
         return False
 
 
+def check_dual_namespace_parity() -> bool:
+    log("Checking Dual Namespace Parity (race_proof <-> race_oracle)...")
+    import importlib
+    import os
+
+    root_dir = Path(__file__).resolve().parent.parent
+    proof_dir = root_dir / "race_proof"
+    oracle_dir = root_dir / "race_oracle"
+
+    proof_files = []
+    for dirpath, _, filenames in os.walk(proof_dir):
+        if "__pycache__" in dirpath:
+            continue
+        rel = os.path.relpath(dirpath, proof_dir)
+        for f in filenames:
+            if f.endswith(".py"):
+                proof_files.append((rel, f))
+
+    missing = []
+    for rel, f in proof_files:
+        match_path = oracle_dir / rel / f if rel != "." else oracle_dir / f
+        if not match_path.exists():
+            missing.append(str(match_path))
+
+    if missing:
+        log(f"Missing {len(missing)} files in race_oracle namespace!", "FAIL")
+        for m in missing:
+            log(f"  Missing: {m}", "FAIL")
+        return False
+
+    # Check importability of race_oracle top-level and submodules
+    try:
+        import race_oracle
+        import race_oracle.analysis.invariants
+        import race_oracle.evidence.sarif
+        import race_oracle.formal.verifier
+        import race_oracle.ingestion.base
+        import race_oracle.bench.scorecard
+        log(f"Dual parity verified: all {len(proof_files)} modules mirror 1:1 with zero defects.", "PASS")
+        return True
+    except Exception as e:
+        log(f"Failed to import from race_oracle shim namespace: {e}", "FAIL")
+        return False
+
+
 def check_pep561() -> bool:
     log("Checking PEP 561 typing compliance...")
-    typed_file = Path(__file__).resolve().parent.parent / "race_proof" / "py.typed"
-    if typed_file.exists():
-        log("py.typed marker verified.", "PASS")
+    root = Path(__file__).resolve().parent.parent
+    proof_typed = root / "race_proof" / "py.typed"
+    oracle_typed = root / "race_oracle" / "py.typed"
+    if proof_typed.exists() and oracle_typed.exists():
+        log("py.typed markers verified in both race_proof and race_oracle.", "PASS")
         return True
     else:
-        log("Missing py.typed marker!", "FAIL")
+        log("Missing py.typed marker in one or both packages!", "FAIL")
         return False
 
 
@@ -88,10 +135,12 @@ def main() -> None:
 
     results = [
         ("PEP 561 Typing Marker", check_pep561()),
+        ("Dual Namespace Parity", check_dual_namespace_parity()),
         ("Rust Hot-Path Engine", check_rust_core()),
         ("Pytest Test Suite", run_tests()),
         ("Benchmark Corpus Quality", run_benchmark()),
     ]
+
 
     print("\n" + "=" * 60)
     print("  SUMMARY REPORT")

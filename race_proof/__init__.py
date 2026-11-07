@@ -16,11 +16,28 @@ from race_proof.exceptions import (
     AttestationError,
 )
 from race_proof.logging import get_logger, setup_logging
+from race_proof.models import (
+    AnalysisDimension,
+    DimensionResult,
+    InvariantOperator,
+    InvariantRule,
+    InvariantViolation,
+    RaceRequest,
+    RaceResponse,
+    RaceSession,
+    Verdict,
+    VerdictLevel,
+)
 from race_proof.registry import AdapterRegistry, EngineRegistry, ExporterRegistry
+from race_proof.verdict import VerdictEngine
+
+# Compatibility alias
+VerdictClass = VerdictLevel
 
 __all__ = [
     "__version__",
     "config",
+    "ProofConfig",
     "OracleConfig",
     "setup_logging",
     "get_logger",
@@ -33,5 +50,18 @@ __all__ = [
     "FormalProofError",
     "AgentSandboxError",
     "AttestationError",
+    "RaceSession",
+    "RaceResponse",
+    "RaceRequest",
+    "Verdict",
+    "VerdictLevel",
+    "VerdictClass",
+    "VerdictEngine",
+    "InvariantRule",
+    "InvariantViolation",
+    "InvariantOperator",
+    "DimensionResult",
+    "AnalysisDimension",
 ]
+
 

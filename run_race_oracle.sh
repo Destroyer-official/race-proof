@@ -16,3 +16,4 @@ if [ $# -eq 0 ]; then
 else
     exec "$PYTHON_BIN" -m race_proof.cli "$@"
 fi
+

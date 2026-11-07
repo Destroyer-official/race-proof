@@ -116,3 +116,50 @@ def test_consensus_swarm_prevents_hallucination_on_rate_limit():
     assert consensus.consensus_level == "DEBUNKED_FALSE_POSITIVE"
     assert consensus.final_verdict == VerdictLevel.NOISE
     assert any("429" in r for r in consensus.adversary_reasons)
+
+
+def test_race_oracle_backward_compatibility_parity():
+    """Verify that race_oracle provides complete 1:1 dual compatibility with race_proof."""
+    import importlib
+    import os
+    import race_oracle
+
+    assert hasattr(race_oracle, "RaceSession")
+    assert hasattr(race_oracle, "VerdictEngine")
+    assert hasattr(race_oracle, "ProofConfig")
+    assert hasattr(race_oracle, "OracleConfig")
+
+    # Import submodules through race_oracle namespace
+    import race_oracle.analysis.invariants as oracle_inv
+    import race_proof.analysis.invariants as proof_inv
+    assert oracle_inv.InvariantChecker is proof_inv.InvariantChecker
+
+    import race_oracle.evidence.sarif as oracle_sarif
+    import race_proof.evidence.sarif as proof_sarif
+    assert oracle_sarif.SarifExporter is proof_sarif.SarifExporter
+
+    import race_oracle.formal.verifier as oracle_verifier
+    import race_proof.formal.verifier as proof_verifier
+    assert oracle_verifier.FormalConcurrencyVerifier is proof_verifier.FormalConcurrencyVerifier
+
+    import race_oracle.ingestion.base as oracle_base
+    import race_proof.ingestion.base as proof_base
+    assert oracle_base.BaseAdapter is proof_base.BaseAdapter
+
+    import race_oracle.bench.scorecard as oracle_scorecard
+    import race_proof.bench.scorecard as proof_scorecard
+    assert oracle_scorecard.BenchmarkScorecard is proof_scorecard.BenchmarkScorecard
+
+    # Ensure every single python file in race_proof has a matching file in race_oracle
+    proof_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "race_proof"))
+    oracle_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "race_oracle"))
+
+    for dirpath, _, filenames in os.walk(proof_root):
+        if "__pycache__" in dirpath:
+            continue
+        rel = os.path.relpath(dirpath, proof_root)
+        for f in filenames:
+            if f.endswith(".py"):
+                match_file = os.path.join(oracle_root, rel, f) if rel != "." else os.path.join(oracle_root, f)
+                assert os.path.exists(match_file), f"Missing backward compatibility file in race_oracle: {match_file}"
+
