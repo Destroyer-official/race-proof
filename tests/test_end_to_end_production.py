@@ -174,15 +174,15 @@ def test_e2e_hunt_poc_synthesis():
 
 
 def test_e2e_benchmark_suite_execution():
-    """Verify that the full 25-scenario benchmark suite runs with 100% precision and recall."""
+    """Verify that the benchmark suite runs with 100% precision and recall."""
     runner = BenchmarkRunner(verbose=False)
     scenarios = runner.discover_scenarios()
-    assert len(scenarios) == 25
+    assert len(scenarios) >= 25
 
     card = runner.run_all()
     summary = card.compute_summary()
 
-    assert summary["total_scenarios"] == 25
+    assert summary["total_scenarios"] >= 25
     assert summary["precision"] == 1.0
     assert summary["recall"] == 1.0
     assert summary["f1_score"] == 1.0

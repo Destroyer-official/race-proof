@@ -83,7 +83,7 @@ def check_pep561() -> bool:
 
 def main() -> None:
     print("\n" + "=" * 60)
-    print("  ⚡ RACE ORACLE 2027+ // ENTERPRISE VERIFICATION CHECKLIST")
+    print("  ⚡ RACEPROOF // PRODUCTION VERIFICATION CHECKLIST")
     print("=" * 60 + "\n")
 
     results = [
@@ -104,7 +104,7 @@ def main() -> None:
             all_ok = False
 
     if all_ok:
-        log("RaceProof is 100% production ready and verified for 2027+!", "PASS")
+        log("RaceProof is fully production ready and all verifications passed.", "PASS")
         sys.exit(0)
     else:
         log("Verification failed. Please review errors above.", "FAIL")

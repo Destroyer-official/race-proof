@@ -36,3 +36,4 @@ jobs:
       - name: Run Ground-Truth Benchmark
         run: |
           python scripts/run_benchmarks.py
+
