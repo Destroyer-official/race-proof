@@ -73,22 +73,27 @@ Tab.-active {
     margin-right: 1;
 }
 
-/* Metric Tiles */
-.metric-tile {
+/* Engine and Status Cards */
+.engine-card {
     background: #131b2e;
     border: solid #1e293b;
-    padding: 1;
+    padding: 1 2;
     width: 1fr;
     margin-right: 1;
-    text-align: center;
 }
 
-.metric-tile:hover {
+.engine-card:hover {
     border: solid #38bdf8;
 }
 
+.engine-card-title {
+    color: #38bdf8;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
 .metric-title {
-    color: #64748b;
+    color: #94a3b8;
     text-style: bold;
 }
 
@@ -128,8 +133,12 @@ Tab.-active {
     text-align: center;
 }
 
+.kpi-box:hover {
+    border: solid #38bdf8;
+}
+
 .kpi-box-title {
-    color: #64748b;
+    color: #94a3b8;
     text-style: bold;
 }
 
@@ -138,7 +147,7 @@ Tab.-active {
     text-style: bold;
 }
 
-/* Buttons */
+/* Buttons and Action Bars */
 .action-bar {
     height: auto;
     layout: horizontal;
@@ -147,7 +156,7 @@ Tab.-active {
 }
 
 Button {
-    min-width: 18;
+    min-width: 16;
     height: 3;
     margin-right: 1;
     text-style: bold;
@@ -236,6 +245,31 @@ Select:focus {
     color: #64748b;
 }
 
+/* Verdict Display Panels */
+.verdict-panel-confirmed {
+    background: #200810;
+    border: tall #f43f5e;
+    padding: 1 2;
+    margin-bottom: 1;
+    color: #fda4af;
+}
+
+.verdict-panel-benign {
+    background: #042013;
+    border: tall #10b981;
+    padding: 1 2;
+    margin-bottom: 1;
+    color: #6ee7b7;
+}
+
+.verdict-panel-uncertain {
+    background: #241804;
+    border: tall #f59e0b;
+    padding: 1 2;
+    margin-bottom: 1;
+    color: #fde68a;
+}
+
 /* Data Tables */
 DataTable {
     background: #0b0f19;
@@ -267,7 +301,7 @@ RichLog {
 
 .code-viewer {
     height: 1fr;
-    min-height: 12;
+    min-height: 10;
 }
 
 .detail-pane {
@@ -276,5 +310,7 @@ RichLog {
     padding: 1;
     margin-top: 1;
     color: #e2e8f0;
+    height: auto;
+    min-height: 5;
 }
 """

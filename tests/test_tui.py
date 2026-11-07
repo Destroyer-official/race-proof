@@ -5,7 +5,7 @@ import asyncio
 from pathlib import Path
 import pytest
 
-from textual.widgets import Button, DataTable, Input, RichLog, Static, TabbedContent
+from textual.widgets import Button, DataTable, Input, RichLog, Select, Static, TabbedContent
 from race_proof.tui.app import RaceProofTUI
 
 
@@ -176,3 +176,28 @@ def test_tui_benchmark_execution():
             assert summary["recall"] == 1.0
 
     asyncio.run(_test())
+
+
+def test_tui_benchmark_domain_filter():
+    """Verify changing domain filter filters the DataTable rows."""
+    async def _test():
+        app = RaceProofTUI()
+        async with app.run_test(size=(140, 50)) as pilot:
+            app.action_switch_tab("tab-bench")
+            table = app.query_one("#bench-datatable", DataTable)
+            assert table.row_count == 31
+
+            filter_sel = app.query_one("#bench-domain-filter", Select)
+            filter_sel.value = "fintech"
+            await pilot.pause()
+
+            # Filtered rows should now only be fintech (5 scenarios)
+            assert table.row_count == 5
+
+            # Inspect scenario detail
+            app._display_bench_scenario_detail("BENCH-FIN-001")
+            pane = app.query_one("#bench-detail-pane", Static)
+            assert "BENCH-FIN-001" in str(pane.render())
+
+    asyncio.run(_test())
+

@@ -140,6 +140,7 @@ def main(ctx: click.Context) -> None:
               help="Path to GGUF model (default: Destroyer AI model)")
 @click.option("--quiet", "-q", is_flag=True, help="Minimal output")
 @click.option("--json-output", is_flag=True, help="Print verdict as JSON to stdout")
+@click.option("--fail-on-finding", is_flag=True, default=False, help="Exit with code 2 if race condition is confirmed (CI/CD mode)")
 def verify(
     input_path: str,
     source: str | None,
@@ -149,6 +150,7 @@ def verify(
     model: str | None,
     quiet: bool,
     json_output: bool,
+    fail_on_finding: bool = False,
 ) -> None:
     """Verify race condition findings from an attack tool's output."""
     if not quiet:
@@ -232,7 +234,7 @@ def verify(
             elif not quiet:
                 console.print(f"[dim]Evidence bundle: {bundle}[/dim]")
 
-            if verdict.is_confirmed:
+            if verdict.is_confirmed and fail_on_finding:
                 exit_code = 2
         except Exception as exc:
             console.print(f"[red]Analysis failed for session {session.id}: {exc}[/red]")
@@ -305,10 +307,13 @@ def stats() -> None:
 # agent command group
 # ---------------------------------------------------------------------------
 
-@main.group()
-def agent() -> None:
+@main.group(invoke_without_command=True)
+@click.pass_context
+def agent(ctx: click.Context) -> None:
     """Fully autonomous self-improving AI agent commands."""
-    pass
+    if ctx.invoked_subcommand is None:
+        _banner()
+        click.echo(ctx.get_help())
 
 
 @agent.command("goal")
