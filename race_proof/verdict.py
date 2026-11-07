@@ -83,7 +83,7 @@ class VerdictEngine:
                 Panel(
                     f"[dim]Session: {session.id} | Tool: {session.tool_source} | "
                     f"Race responses: {len(session.race_responses)}[/dim]",
-                    title="[bold cyan]RACE ORACLE — ANALYSING[/bold cyan]",
+                    title="[bold cyan]RACEPROOF — ANALYSING[/bold cyan]",
                     border_style="cyan",
                     box=box.ROUNDED,
                 )

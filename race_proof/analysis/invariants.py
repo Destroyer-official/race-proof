@@ -1,7 +1,7 @@
 """Invariant violation checker.
 
 Business invariants are defined in YAML and evaluated against the
-response bodies of a RaceSession. This is the oracle's primary
+response bodies of a RaceSession. This is the engine's primary
 truth-telling mechanism: a finding is only flagged CONFIRMED when
 a verifiable invariant is demonstrably broken.
 """

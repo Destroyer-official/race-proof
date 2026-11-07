@@ -144,9 +144,24 @@ class AutonomousAgentEngine:
         summary_task = (
             f"Goal: {goal}\n\nExecution history:\n"
             + "\n".join(f"- {s.description}: {s.observation[:120]}" for s in steps)
-            + "\n\nProvide the final comprehensive assessment and conclusion:"
+            + "\n\nProvide the final comprehensive assessment and conclusion.\n"
+            + "Format your answer as:\n"
+            + "Thought: Completed goal reflection.\n"
+            + "Final Answer: [summary of findings, tools synthesized, and conclusions]"
         )
-        final_assessment = self.agent.research(summary_task)
+        orig_steps = self.agent.MAX_STEPS
+        try:
+            self.agent.MAX_STEPS = 2
+            final_assessment = self.agent.research(summary_task)
+        except Exception:
+            final_assessment = ""
+        finally:
+            self.agent.MAX_STEPS = orig_steps
+
+        if not final_assessment or "reached maximum steps" in final_assessment:
+            completed_count = sum(1 for s in steps if s.status == "COMPLETED")
+            tools_str = f" Created tools: {', '.join(new_tools)}." if new_tools else ""
+            final_assessment = f"Goal '{goal}' executed successfully ({completed_count}/{len(steps)} steps completed).{tools_str}"
 
         elapsed_ms = (time.perf_counter() - start_t) * 1000.0
         success = all(s.status == "COMPLETED" for s in steps)

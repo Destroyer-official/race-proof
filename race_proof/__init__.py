@@ -6,7 +6,7 @@ try:
 except PackageNotFoundError:
     __version__ = "0.2.0"
 
-from race_proof.config import OracleConfig, config
+from race_proof.config import ProofConfig, OracleConfig, config
 from race_proof.exceptions import (
     RaceProofError,
     IngestionError,

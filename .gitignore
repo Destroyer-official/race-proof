@@ -41,8 +41,11 @@ model/*.log
 
 # Generated audit findings and temporary reports
 race_oracle_findings/
+race_proof_findings/
 *.sarif
 reproduce_race*.py
+test_hunt_poc.py
+test_repro.py
 WebApiRaceModel.tla
 WebApiRaceModel.cfg
 BENCHMARK_SCORECARD.md

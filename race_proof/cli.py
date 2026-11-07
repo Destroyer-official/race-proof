@@ -357,7 +357,7 @@ def interactive(cli_mode: bool, model: str | None) -> None:
 
     while True:
         try:
-            user_input = Prompt.ask("[bold blue]oracle>[/bold blue]").strip()
+            user_input = Prompt.ask("[bold cyan]race-proof>[/bold cyan]").strip()
         except (EOFError, KeyboardInterrupt):
             break
 

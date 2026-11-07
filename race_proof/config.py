@@ -26,7 +26,7 @@ def _find_default_model() -> Path | None:
     return None
 
 
-class OracleConfig(BaseModel):
+class ProofConfig(BaseModel):
     """Runtime configuration settings for RaceProof verification pipelines."""
 
     log_level: str = Field(
@@ -61,5 +61,8 @@ class OracleConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
+# Backwards compatibility alias
+OracleConfig = ProofConfig
+
 # Global default configuration singleton
-config = OracleConfig()
+config = ProofConfig()

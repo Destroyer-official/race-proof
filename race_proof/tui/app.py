@@ -58,10 +58,10 @@ except ImportError:
 
 
 class RaceProofTUI(App[None]):
-    """Definitive 2027+ Concurrency Verification Terminal User Interface."""
+    """Concurrency Verification Terminal User Interface."""
 
-    TITLE = "⚡ RACE ORACLE 2027+ // VERIFICATION STANDARD"
-    SUB_TITLE = "Deterministic Verification Core • TLA+ Formal Verifier • Offline Qwen AI Brain"
+    TITLE = "RaceProof Concurrency Verification Terminal"
+    SUB_TITLE = "Deterministic Verification Core • TLA+ Formal Verifier • Local AI Engine"
     CSS = TUI_CSS
 
     BINDINGS = [
@@ -116,8 +116,8 @@ class RaceProofTUI(App[None]):
     def _compose_dashboard(self) -> ComposeResult:
         with VerticalScroll():
             yield Static(
-                "[bold cyan]⚡ RACE ORACLE DEFINITIVE VERIFICATION DASHBOARD (2027+ STANDARD)[/bold cyan]\n"
-                "[dim]Offline-first, deterministic concurrency oracle with native Rust acceleration and mathematical TLA+ proofs.[/dim]",
+                "[bold cyan]RaceProof Concurrency Verification Dashboard[/bold cyan]\n"
+                "[dim]Offline-capable, deterministic concurrency analysis with native Rust hot-paths and TLA+ formal proofs.[/dim]",
                 classes="card",
             )
 
@@ -141,7 +141,7 @@ class RaceProofTUI(App[None]):
 
                 with Vertical(classes="metric-tile"):
                     yield Label("BENCHMARK STANDARD", classes="metric-title")
-                    yield Label("[bold cyan]25 LABELED SCENARIOS[/bold cyan]", classes="metric-value")
+                    yield Label("[bold cyan]31 LABELED SCENARIOS[/bold cyan]", classes="metric-value")
                     yield Label("100% Precision • 1.000 F1 Ground Truth", classes="dim-label")
 
             # Quick Action Launchpad
@@ -226,7 +226,7 @@ class RaceProofTUI(App[None]):
     # -------------------------------------------------------------------------
     def _compose_bench(self) -> ComposeResult:
         with Vertical():
-            yield Static("[bold cyan]🏆 RaceProof Ground-Truth Benchmark Standard (200+ Scenarios Target)[/bold cyan]", classes="card")
+            yield Static("[bold cyan]🏆 RaceProof Ground-Truth Benchmark Standard[/bold cyan]", classes="card")
 
             # KPI Row
             with Horizontal(classes="kpi-row"):
@@ -244,7 +244,7 @@ class RaceProofTUI(App[None]):
                     yield Label("1.0000", id="bench-kpi-mcc", classes="kpi-box-val")
                 with Vertical(classes="kpi-box"):
                     yield Label("TOTAL SCENARIOS", classes="kpi-box-title")
-                    yield Label("25", id="bench-kpi-total", classes="kpi-box-val")
+                    yield Label("31", id="bench-kpi-total", classes="kpi-box-val")
 
             # Benchmark Action Bar
             with Horizontal(classes="action-bar"):
@@ -499,6 +499,16 @@ class RaceProofTUI(App[None]):
         elif button_id == "btn-log-telemetry":
             self._log_telemetry()
 
+    def on_select_changed(self, event: Select.Changed) -> None:
+        """Handle select dropdown changes."""
+        if event.select.id == "verify-preset-select":
+            val = event.value
+            if val and val != Select.BLANK:
+                bench_root = Path(__file__).resolve().parent.parent.parent / "race_proof_bench"
+                target_path = bench_root / str(val)
+                self.query_one("#verify-path-input", Input).value = str(target_path)
+                self._log_event(f"Selected preset: {target_path.name}")
+
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle scenario row selection in benchmark table."""
         if event.data_table.id == "bench-datatable":
@@ -526,8 +536,16 @@ class RaceProofTUI(App[None]):
         details = self.query_one("#verify-details", RichLog)
 
         if not path_str:
-            banner.update("[bold red]Please enter a valid file path or select a preset scenario.[/bold red]")
-            return
+            preset_select = self.query_one("#verify-preset-select", Select)
+            val = preset_select.value
+            if val and val != Select.BLANK:
+                bench_root = Path(__file__).resolve().parent.parent.parent / "race_proof_bench"
+                target_path = bench_root / str(val)
+                path_str = str(target_path)
+                self.query_one("#verify-path-input", Input).value = path_str
+            else:
+                banner.update("[bold red]Please enter a valid file path or select a preset scenario.[/bold red]")
+                return
 
         file_path = Path(path_str)
         if not file_path.exists():
@@ -545,6 +563,39 @@ class RaceProofTUI(App[None]):
                 scen = runner.load_scenario(file_path)
                 res = runner.run_scenario(scen)
                 verdict_str = res.predicted_verdict
+
+                b_raw = scen["baseline"]
+                baseline = RaceResponse(
+                    status_code=b_raw["status_code"],
+                    headers=b_raw.get("headers", {}),
+                    body=b_raw.get("body", ""),
+                    elapsed_ms=float(b_raw.get("elapsed_ms", 30.0)),
+                    ttfb_ms=float(b_raw.get("ttfb_ms", 15.0)),
+                    request=RaceRequest(url="https://benchmark.internal/api/target", method="POST"),
+                )
+                race_responses = [
+                    RaceResponse(
+                        status_code=r["status_code"],
+                        headers=r.get("headers", {}),
+                        body=r.get("body", ""),
+                        elapsed_ms=float(r.get("elapsed_ms", 25.0)),
+                        ttfb_ms=float(r.get("ttfb_ms", 12.0)),
+                        sequence_index=r.get("sequence_index", i),
+                        request=RaceRequest(url="https://benchmark.internal/api/target", method="POST"),
+                    )
+                    for i, r in enumerate(scen["race_responses"])
+                ]
+                session = RaceSession(
+                    id=scen.get("scenario_id", file_path.stem),
+                    tool_source="benchmark_harness",
+                    baseline=baseline,
+                    race_responses=race_responses,
+                    metadata={"domain": scen.get("domain", "general")},
+                )
+                engine = VerdictEngine()
+                verdict = engine.analyse(session)
+                self.last_session = session
+                self.last_verdict = verdict
 
                 if verdict_str == "CONFIRMED":
                     banner.update(f"[bold red]VERDICT: CONFIRMED RACE CONDITION (Ground Truth: {res.ground_truth})[/bold red]")

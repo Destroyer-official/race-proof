@@ -80,22 +80,34 @@ class LLMBrain:
     def __init__(
         self,
         model_path: Path | None = None,
-        n_ctx: int = 4096,
+        n_ctx: int = 8192,
         n_gpu_layers: int = -1,
         max_tokens: int = 512,
         temperature: float = 0.3,
         verbose: bool = False,
+        lazy: bool = True,
     ):
         self.model_path = model_path or DEFAULT_MODEL_PATH
         self.n_ctx = n_ctx
         self.max_tokens = max_tokens
         self.temperature = temperature
+        self.n_gpu_layers = n_gpu_layers
+        self.verbose = verbose
         self._llm: Any = None
         self._available = False
+        self._tried_loading = False
 
-        # Try to load the model
+        if not lazy:
+            self.ensure_loaded()
+
+    def ensure_loaded(self) -> bool:
+        """Lazily load the GGUF model into memory/VRAM on first demand."""
+        if self._tried_loading:
+            return self._available
+        self._tried_loading = True
         try:
-            self._load(n_gpu_layers, verbose)
+            self._load(self.n_gpu_layers, self.verbose)
+            return True
         except Exception as exc:
             import warnings
             warnings.warn(
@@ -104,11 +116,12 @@ class LLMBrain:
                 RuntimeWarning,
                 stacklevel=2,
             )
+            return False
 
     def _load(self, n_gpu_layers: int, verbose: bool) -> None:
         from llama_cpp import Llama
 
-        if not self.model_path.exists():
+        if not self.model_path or not self.model_path.exists():
             raise FileNotFoundError(f"Model not found: {self.model_path}")
 
         self._llm = Llama(
@@ -123,21 +136,54 @@ class LLMBrain:
 
     @property
     def is_available(self) -> bool:
+        if not self._tried_loading:
+            return bool(self.model_path and self.model_path.exists())
         return self._available
+
+    def _trim_prompt_to_ctx(self, prompt: str) -> str:
+        """Safely ensure prompt tokens do not exceed the model's context window."""
+        if not self._llm:
+            return prompt
+        try:
+            tokens = self._llm.tokenize(prompt.encode("utf-8"))
+            safety_limit = self.n_ctx - self.max_tokens - 32
+            if len(tokens) > safety_limit:
+                head_count = min(1024, safety_limit // 4)
+                tail_count = safety_limit - head_count
+                trimmed_tokens = tokens[:head_count] + tokens[-tail_count:]
+                return self._llm.detokenize(trimmed_tokens).decode("utf-8", errors="ignore")
+        except Exception:
+            pass
+        return prompt
 
     def complete(self, prompt: str) -> str:
         """Generate a completion for the given prompt."""
+        self.ensure_loaded()
         if not self._available or self._llm is None:
             return self._mock_complete(prompt)
 
-        result = self._llm.create_completion(
-            prompt=prompt,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            stop=["Observation:", "\nObservation:"],
-            stream=False,
-        )
-        return result["choices"][0]["text"].strip()
+        safe_prompt = self._trim_prompt_to_ctx(prompt)
+        try:
+            result = self._llm.create_completion(
+                prompt=safe_prompt,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                stop=["Observation:", "\nObservation:"],
+                stream=False,
+            )
+            return result["choices"][0]["text"].strip()
+        except ValueError as exc:
+            if "exceed context window" in str(exc).lower():
+                prompt_fallback = prompt[:1000] + "\n...[history truncated]...\n" + prompt[-2000:]
+                result = self._llm.create_completion(
+                    prompt=prompt_fallback,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    stop=["Observation:", "\nObservation:"],
+                    stream=False,
+                )
+                return result["choices"][0]["text"].strip()
+            raise
 
     def stream(self, prompt: str) -> Iterator[str]:
         """Stream a completion token by token."""
@@ -265,25 +311,49 @@ class ToolCallParser:
             result["is_final"] = True
             return result
 
-        action_match = cls.ACTION_RE.search(text)
-        if action_match:
-            result["action"] = action_match.group(1).strip()
+        # Inline action call: Action: name(...)
+        inline_match = re.search(r"Action:\s*([a-zA-Z0-9_]+)\s*\((.*)\)", text, re.DOTALL)
+        if inline_match:
+            result["action"] = inline_match.group(1).strip()
+            args_raw = inline_match.group(2).strip()
+            if args_raw.startswith("{") and args_raw.endswith("}"):
+                try:
+                    result["action_input"] = json.loads(args_raw)
+                except Exception:
+                    try:
+                        import ast
+                        result["action_input"] = ast.literal_eval(args_raw)
+                    except Exception:
+                        pass
+        else:
+            action_match = cls.ACTION_RE.search(text)
+            if action_match:
+                result["action"] = action_match.group(1).strip()
 
         idx = text.find("Action Input:")
         if idx != -1:
-            json_substr = text[idx + len("Action Input:"):].strip()
-            if json_substr.startswith("{"):
+            raw_input = text[idx + len("Action Input:"):].strip()
+            if raw_input.startswith("```"):
+                raw_input = re.sub(r"^```(?:json)?\s*", "", raw_input)
+                raw_input = re.sub(r"\s*```.*$", "", raw_input, flags=re.DOTALL).strip()
+
+            if raw_input.startswith("{"):
                 try:
-                    obj, _ = json.JSONDecoder().raw_decode(json_substr)
+                    obj, _ = json.JSONDecoder().raw_decode(raw_input)
                     result["action_input"] = obj
                 except json.JSONDecodeError:
-                    # Fallback regex extraction
-                    input_match = cls.INPUT_RE.search(text)
-                    if input_match:
-                        try:
-                            result["action_input"] = json.loads(input_match.group(1))
-                        except Exception:
-                            result["action_input"] = {}
+                    try:
+                        import ast
+                        m = re.search(r"(\{.*?\})", raw_input, re.DOTALL)
+                        if m:
+                            result["action_input"] = ast.literal_eval(m.group(1))
+                    except Exception:
+                        input_match = cls.INPUT_RE.search(text)
+                        if input_match:
+                            try:
+                                result["action_input"] = json.loads(input_match.group(1))
+                            except Exception:
+                                result["action_input"] = {}
 
         return result
 

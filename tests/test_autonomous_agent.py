@@ -72,7 +72,9 @@ def run(**kwargs):
 
 
 def test_autonomous_agent_goal_execution():
-    engine = AutonomousAgentEngine(verbose=False)
+    from race_proof.agent.brain import LLMBrain
+    mock_brain = LLMBrain(model_path=Path("mock_test.gguf"))
+    engine = AutonomousAgentEngine(brain=mock_brain, verbose=False)
     goal = "Synthesize and test a custom token validator tool"
     context = {"tool_name": "validate_session_nonce"}
 
@@ -87,7 +89,9 @@ def test_autonomous_agent_goal_execution():
 
 
 def test_autonomous_agent_memory_persistence():
-    engine = AutonomousAgentEngine(verbose=False)
+    from race_proof.agent.brain import LLMBrain
+    mock_brain = LLMBrain(model_path=Path("mock_test.gguf"))
+    engine = AutonomousAgentEngine(brain=mock_brain, verbose=False)
     stats = engine.get_memory_stats()
 
     assert "goals_executed" in stats

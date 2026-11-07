@@ -7,7 +7,7 @@ structured JSON arguments.
 All tools are SAFE BY DEFAULT:
 - Web search uses only DuckDuckGo (no API key, no credentials)
 - Code execution runs in a restricted namespace with a timeout
-- File writes are limited to the oracle's data directory
+- File writes are limited to the RaceProof data directory
 """
 from __future__ import annotations
 
@@ -33,8 +33,17 @@ class Tool:
     examples: list[str] = field(default_factory=list)
 
     def call(self, **kwargs: Any) -> str:
+        import inspect
         try:
-            return self.fn(**kwargs)
+            sig = inspect.signature(self.fn)
+            has_var_kw = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values())
+            if has_var_kw:
+                return self.fn(**kwargs)
+            valid_args = {k: v for k, v in kwargs.items() if k in sig.parameters}
+            if not valid_args and len(sig.parameters) == 1 and kwargs:
+                param_name = next(iter(sig.parameters.keys()))
+                valid_args = {param_name: next(iter(kwargs.values()))}
+            return self.fn(**valid_args)
         except Exception as exc:
             return f"ERROR in tool '{self.name}': {type(exc).__name__}: {exc}"
 

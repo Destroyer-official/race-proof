@@ -14,7 +14,7 @@ def test_tui_mount_and_default_state():
     async def _test():
         app = RaceProofTUI()
         async with app.run_test(size=(140, 50)) as pilot:
-            assert "RACE ORACLE" in app.TITLE
+            assert "RaceProof" in app.TITLE
 
             # Main tabs container
             tabs = app.query_one("#main-tabs", TabbedContent)
@@ -101,6 +101,7 @@ def test_tui_verify_preset_and_execution():
             # Trigger verification button
             btn_run = app.query_one("#btn-run-verify", Button)
             btn_run.press()
+            await pilot.pause()
 
             # Wait for thread worker to finish
             await app.workers.wait_for_complete()
@@ -121,6 +122,7 @@ def test_tui_formal_proof_execution():
 
             btn_proof = app.query_one("#btn-run-proof", Button)
             btn_proof.press()
+            await pilot.pause()
 
             await app.workers.wait_for_complete()
             await pilot.pause()
@@ -160,6 +162,7 @@ def test_tui_benchmark_execution():
 
             btn_bench = app.query_one("#btn-run-bench", Button)
             btn_bench.press()
+            await pilot.pause()
 
             # Allow background benchmark worker to process scenarios
             await app.workers.wait_for_complete()

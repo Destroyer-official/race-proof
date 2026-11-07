@@ -48,12 +48,12 @@ class RaceProofAgent:
 
     def enhance_verdict(self, verdict: Verdict, context: str = "") -> dict[str, Any]:
         """
-        Given an existing oracle verdict, run the agent to:
+        Given an existing verification verdict, run the agent to:
         1. Research known patterns matching the endpoint/context
         2. Generate new invariant rules
         3. Return an enhanced verdict dict with agent findings appended
 
-        This is the primary entry-point from the main oracle pipeline.
+        This is the primary entry-point from the main verification pipeline.
         """
         task = self._build_verdict_task(verdict, context)
         result = self.run(task)
@@ -93,7 +93,7 @@ class RaceProofAgent:
             console.print(
                 Panel(
                     f"[dim]{task[:200]}...[/dim]" if len(task) > 200 else f"[dim]{task}[/dim]",
-                    title="[bold cyan]RACE ORACLE AGENT — TASK[/bold cyan]",
+                    title="[bold cyan]RACEPROOF AGENT — TASK[/bold cyan]",
                     border_style="cyan",
                     box=box.ROUNDED,
                 )

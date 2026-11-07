@@ -13,7 +13,7 @@ class BaseAdapter(ABC):
     
     Each adapter converts the output of a specific race attack tool
     (Turbo Intruder, QuicDraw, Nuclei, etc.) into a list of RaceSession
-    objects that the oracle engine can process.
+    objects that the verification engine can process.
     """
 
     @property

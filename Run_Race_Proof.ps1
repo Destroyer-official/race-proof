@@ -30,5 +30,5 @@ if ($env:VULKAN_SDK) {
 }
 
 Write-Host "Launching RaceProof with: $PythonExe" -ForegroundColor Cyan
-& $PythonExe -m race_proof.cli $cliArgs
+& $PythonExe -m race_proof.cli @cliArgs
 exit $LASTEXITCODE

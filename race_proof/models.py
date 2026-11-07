@@ -226,7 +226,7 @@ class VerdictLevel(str, Enum):
 
 
 class Verdict(BaseModel):
-    """The oracle's final verdict on a RaceSession."""
+    """The final verification verdict on a RaceSession."""
 
     finding_id: str
     verdict: VerdictLevel

@@ -1,6 +1,6 @@
 """Self-improvement engine.
 
-After each oracle run, this module examines the verdict and decides
+After each verification run, this module examines the verdict and decides
 whether to trigger an agent research session to improve future results.
 
 Self-improvement lifecycle:
